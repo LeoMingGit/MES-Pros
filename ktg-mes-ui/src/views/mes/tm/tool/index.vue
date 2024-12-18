@@ -157,7 +157,7 @@
           <dict-tag :options="dict.type.mes_tool_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column width="120px" label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -176,7 +176,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -189,52 +189,64 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="工装夹具类型" prop="toolTypeId">
-              <el-select v-model="form.toolTypeId" @change="onToolTypeChanged" placeholder="请选择类型">
-                <el-option
-                  v-for="dict in toolTypeOptions"
-                  :key="dict.toolTypeId"
-                  :label="dict.toolTypeName"
-                  :value="dict.toolTypeId"
-                ></el-option>
-              </el-select>
-            </el-form-item>
+          <el-col :span="14">
+            <el-row>
+              <el-col :span="16">
+                <el-form-item  label="工装夹具编号" prop="toolCode">
+                  <el-input v-model="form.toolCode" readonly="readonly" maxlength="64" v-if="['view','edit'].indexOf(optType)> -1"/>
+                  <el-input v-model="form.toolCode" placeholder="请输入工装夹具编号" maxlength="64" v-else/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                             active-color="#13ce66"
+                             active-text="自动生成"
+                             @change="handleAutoGenChange(autoGenFlag)" v-if="['view','edit'].indexOf(optType)< 0">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="工装夹具名称" prop="toolName">
+                  <el-input v-model="form.toolName" placeholder="请输入工装夹具名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="工装夹具类型" prop="toolTypeId">
+                  <el-select style="width: 100%" v-model="form.toolTypeId" @change="onToolTypeChanged" placeholder="请选择类型">
+                    <el-option
+                        v-for="dict in toolTypeOptions"
+                        :key="dict.toolTypeId"
+                        :label="dict.toolTypeName"
+                        :value="dict.toolTypeId"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="型号" prop="spec">
+                  <el-input v-model="form.spec" placeholder="请输入型号" />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="工装夹具名称" prop="toolName">
-              <el-input v-model="form.toolName" placeholder="请输入工装夹具名称" />
-            </el-form-item>
+          <el-col :span="10">
+            <BarcodeImg ref="barcodeImg" :bussinessId="form.toolId" :bussinessCode="form.toolCode" barcodeType="TOOL"></BarcodeImg>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="14">
             <el-form-item label="品牌" prop="brand">
               <el-input v-model="form.brand" placeholder="请输入品牌" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="型号" prop="spec">
-              <el-input v-model="form.spec" placeholder="请输入型号" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item  label="工装夹具编号" prop="toolCode">
-              <el-input v-model="form.toolCode" placeholder="请输入工装夹具编号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="4">
-            <el-form-item  label-width="80">
-              <el-switch v-model="autoGenFlag"
-                  active-color="#13ce66"
-                  active-text="自动生成"
-                  @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
+          <el-col :span="10">
             <el-form-item  label="数量" prop="quantity">
               <el-input v-if="form.codeFlag=='Y'" readonly v-model="form.quantity" />
               <el-input-number :min="0" @blur="onQuantityChanged" v-else v-model="form.quantity" placeholder="请输入数量" />
@@ -242,12 +254,12 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="14">
             <el-form-item label="可用数量" prop="quantityAvail">
               <el-input v-model="form.quantityAvail" readonly placeholder="请输入可用数量" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="10">
             <el-form-item label="保养维护类型" prop="maintenType">
               <el-select v-model="form.maintenType" placeholder="请选择保养维护类型">
                 <el-option
@@ -307,8 +319,11 @@
 import { listTool, getTool, delTool, addTool, updateTool } from "@/api/mes/tm/tool";
 import { listAllTooltype } from "@/api/mes/tm/tooltype"
 import {genCode} from "@/api/system/autocode/rule"
+import {getBarcodeUrl} from "@/api/mes/wm/barcode";
+import BarcodeImg from "@/components/barcodeImg/index.vue";
 export default {
   name: "Tool",
+  components: {BarcodeImg},
   dicts: ['mes_tool_status', 'mes_mainten_type'],
   data() {
     return {
@@ -335,6 +350,12 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      barcodeParams: {
+        bussinessId: null,
+        bussinessCode: null,
+        barcodeFormart: 'QR_CODE', //模式二维码
+        barcodeType: 'TOOL' //类型
+      },
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -466,10 +487,13 @@ export default {
       this.reset();
       const toolId = row.toolId || this.ids;
       getTool(toolId).then(response => {
-        this.form = response.data;        
+        this.form = response.data;
         this.open = true;
         this.title = "查看工装夹具信息";
         this.optType = "view";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
       });
     },
     /** 修改按钮操作 */
@@ -481,6 +505,19 @@ export default {
         this.open = true;
         this.title = "修改工装夹具清单";
         this.optType = "edit";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
+      });
+    },
+    //获取二维码地址
+    getBarcodeUrl(){
+      this.barcodeParams.bussinessId = this.form.toolId;
+      this.barcodeParams.bussinessCode = this.form.toolCode;
+      getBarcodeUrl(this.barcodeParams).then( response =>{
+        if(response.data != null){
+          this.$set(this.form,'barcodeUrl',response.data.barcodeUrl);//强制刷新DOM
+        }
       });
     },
     /** 提交按钮 */
@@ -533,3 +570,17 @@ export default {
   }
 };
 </script>
+<style scoped>
+.flex-container{
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+.barcodeClass {
+  width: 200px;
+  height: 200px;
+  border: 1px dashed;
+  position: relative;
+  display: inline-block;
+}
+</style>

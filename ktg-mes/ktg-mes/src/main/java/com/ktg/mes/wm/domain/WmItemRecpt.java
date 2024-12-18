@@ -36,6 +36,17 @@ public class WmItemRecpt extends BaseEntity
     @Excel(name = "来料检验单编号")
     private String iqcCode;
 
+    /**
+     * 到货通知单ID
+     */
+    private Long noticeId;
+
+    /**
+     * 到货通知单编号
+     */
+    private String noticeCode;
+
+
     /** 采购订单编号 */
     @Excel(name = "采购订单编号")
     private String poCode;
@@ -158,7 +169,24 @@ public class WmItemRecpt extends BaseEntity
     {
         return iqcCode;
     }
-    public void setPoCode(String poCode) 
+
+    public Long getNoticeId() {
+        return noticeId;
+    }
+
+    public void setNoticeId(Long noticeId) {
+        this.noticeId = noticeId;
+    }
+
+    public String getNoticeCode() {
+        return noticeCode;
+    }
+
+    public void setNoticeCode(String noticeCode) {
+        this.noticeCode = noticeCode;
+    }
+
+    public void setPoCode(String poCode)
     {
         this.poCode = poCode;
     }

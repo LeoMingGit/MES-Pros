@@ -9,7 +9,7 @@ ktg-mes:
   # 实例演示开关
   demoEnabled: true
   # 文件路径 示例（ Windows配置D:/ktg/uploadPath，Linux配置 /home/ktg/uploadPath）
-  profile: D:/source_code/j2eeworkspace/ktg-mes/upload
+  profile: /home/ktg/uploadPath
   #profile: /home/www/uploadPath
   # 获取ip地址开关
   addressEnabled: false
@@ -19,7 +19,7 @@ ktg-mes:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 8080
+  port: 8089
   servlet:
     # 应用的访问路径
     context-path: /
@@ -63,11 +63,11 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: 117.72.43.18
+    host: 101.126.149.200
     # 端口，默认为6379
     port: 6379
     # 数据库索引
-    database: 0
+    database: 1
     # 密码
     password: 123456
     # 连接超时时间

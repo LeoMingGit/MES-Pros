@@ -34,6 +34,16 @@ public class QcIndex extends BaseEntity
     @Excel(name = "检测工具")
     private String qcTool;
 
+    /**
+     * 检测结果值类型
+     */
+    private String qcResultType;
+
+    /**
+     * 值属性
+     */
+    private String qcResultSpc;
+
     /** 预留字段1 */
     private String attr1;
 
@@ -91,7 +101,24 @@ public class QcIndex extends BaseEntity
     {
         return qcTool;
     }
-    public void setAttr1(String attr1) 
+
+    public String getQcResultType() {
+        return qcResultType;
+    }
+
+    public void setQcResultType(String qcResultType) {
+        this.qcResultType = qcResultType;
+    }
+
+    public String getQcResultSpc() {
+        return qcResultSpc;
+    }
+
+    public void setQcResultSpc(String qcResultSpc) {
+        this.qcResultSpc = qcResultSpc;
+    }
+
+    public void setAttr1(String attr1)
     {
         this.attr1 = attr1;
     }

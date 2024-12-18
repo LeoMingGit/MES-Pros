@@ -10,6 +10,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="indexName"    column="index_name"    />
         <result property="indexType"    column="index_type"    />
         <result property="qcTool"    column="qc_tool"    />
+        <result property="qcResultType"    column="qc_result_type"    />
+        <result property="qcResultSpc"    column="qc_result_spc"    />
         <result property="remark"    column="remark"    />
         <result property="attr1"    column="attr1"    />
         <result property="attr2"    column="attr2"    />
@@ -22,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectQcIndexVo">
-        select index_id, index_code, index_name, index_type, qc_tool, remark, attr1, attr2, attr3, attr4, create_by, create_time, update_by, update_time from qc_index
+        select index_id, index_code, index_name, index_type, qc_tool, qc_result_type,qc_result_spc,remark, attr1, attr2, attr3, attr4, create_by, create_time, update_by, update_time from qc_index
     </sql>
 
     <select id="selectQcIndexList" parameterType="QcIndex" resultMap="QcIndexResult">
@@ -57,6 +59,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="indexName != null and indexName != ''">index_name,</if>
             <if test="indexType != null and indexType != ''">index_type,</if>
             <if test="qcTool != null">qc_tool,</if>
+            <if test="qcResultType != null">qc_result_type,</if>
+            <if test="qcResultSpc != null">qc_result_spc,</if>
             <if test="remark != null">remark,</if>
             <if test="attr1 != null">attr1,</if>
             <if test="attr2 != null">attr2,</if>
@@ -72,6 +76,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="indexName != null and indexName != ''">#{indexName},</if>
             <if test="indexType != null and indexType != ''">#{indexType},</if>
             <if test="qcTool != null">#{qcTool},</if>
+            <if test="qcResultType != null">#{qcResultType},</if>
+            <if test="qcResultSpc != null">#{qcResultSpc},</if>
             <if test="remark != null">#{remark},</if>
             <if test="attr1 != null">#{attr1},</if>
             <if test="attr2 != null">#{attr2},</if>
@@ -91,6 +97,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="indexName != null and indexName != ''">index_name = #{indexName},</if>
             <if test="indexType != null and indexType != ''">index_type = #{indexType},</if>
             <if test="qcTool != null">qc_tool = #{qcTool},</if>
+            <if test="qcResultType != null">qc_result_type = #{qcResultType},</if>
+            <if test="qcResultSpc != null">qc_result_spc = #{qcResultSpc},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="attr1 != null">attr1 = #{attr1},</if>
             <if test="attr2 != null">attr2 = #{attr2},</if>

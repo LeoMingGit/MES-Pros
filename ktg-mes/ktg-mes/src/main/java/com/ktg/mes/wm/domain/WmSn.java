@@ -49,6 +49,15 @@ public class WmSn extends BaseEntity
     @Excel(name = "批次号")
     private String batchCode;
 
+
+    private Long workorderId;
+
+    private String workorderCode;
+
+    private Date inputTime;
+
+    private Long workstationId;
+
     /**
      * SN码的数量
      */
@@ -148,6 +157,14 @@ public class WmSn extends BaseEntity
         this.attr1 = attr1;
     }
 
+    public String getWorkorderCode() {
+        return workorderCode;
+    }
+
+    public void setWorkorderCode(String workorderCode) {
+        this.workorderCode = workorderCode;
+    }
+
     public Integer getSnNum() {
         return snNum;
     }
@@ -194,6 +211,32 @@ public class WmSn extends BaseEntity
     public Long getAttr4() 
     {
         return attr4;
+    }
+
+    public Date getInputTime() {
+        return inputTime;
+    }
+
+    public void setInputTime(Date inputTime) {
+        this.inputTime = inputTime;
+    }
+
+    public void setWorkorderId(Long workorderId)
+    {
+        this.workorderId = workorderId;
+    }
+
+    public Long getWorkorderId()
+    {
+        return workorderId;
+    }
+
+    public Long getWorkstationId() {
+        return workstationId;
+    }
+
+    public void setWorkstationId(Long workstationId) {
+        this.workstationId = workstationId;
     }
 
     @Override

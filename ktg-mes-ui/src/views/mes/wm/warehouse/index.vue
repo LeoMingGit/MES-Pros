@@ -78,7 +78,19 @@
         </template>
       </el-table-column>
       <el-table-column label="负责人" align="center" prop="charge" />
-      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>
+      <el-table-column label="是否冻结" align="center" width="100">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.frozenFlag"
+            active-text="是"
+            inactive-text="否"
+            active-value="Y"
+            inactive-value="N"
+            @change="handleFrozenChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>          
       <el-table-column label="操作" align="center" width="200px" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -118,26 +130,50 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="8">
-            <el-form-item label="仓库编码" prop="warehouseCode">
-              <el-input v-model="form.warehouseCode" placeholder="请输入仓库编码" />
-            </el-form-item>
+          <el-col :span="14">
+            <el-row>
+              <el-col :span="16">
+                <el-form-item label="仓库编码" prop="warehouseCode">
+                  <el-input v-model="form.warehouseCode" placeholder="请输入仓库编码" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                      active-color="#13ce66"
+                      active-text="自动生成"
+                      @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="仓库名称" prop="warehouseName">
+                  <el-input v-model="form.warehouseName" placeholder="请输入仓库名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="负责人" prop="charge">
+                  <el-input v-model="form.charge" placeholder="请输入负责人" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="面积" prop="area">
+                  <el-input-number :min="0" :step="1" :percision="2" v-model="form.area" placeholder="请输入面积" />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
-          <el-col :span="4">
-            <el-form-item  label-width="80">
-              <el-switch v-model="autoGenFlag"
-                  active-color="#13ce66"
-                  active-text="自动生成"
-                  @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="仓库名称" prop="warehouseName">
-              <el-input v-model="form.warehouseName" placeholder="请输入仓库名称" />
-            </el-form-item>
+          <el-col :span="10">
+            <BarcodeImg :bussinessId="form.warehouseId" :bussinessCode="form.warehouseCode" barcodeType="WAREHOUSE"></BarcodeImg>
           </el-col>
         </el-row>
+
         <el-row>
           <el-col :span="24">
             <el-form-item label="位置" prop="location">
@@ -145,18 +181,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="面积" prop="area">
-              <el-input-number :min="0" :step="1" :percision="2" v-model="form.area" placeholder="请输入面积" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="负责人" prop="charge">
-              <el-input v-model="form.charge" placeholder="请输入负责人" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+
         <el-row>
           <el-col :span="24">
             <el-form-item label="备注" prop="remark">
@@ -175,10 +200,12 @@
 </template>
 
 <script>
-import { listWarehouse, getWarehouse, delWarehouse, addWarehouse, updateWarehouse } from "@/api/mes/wm/warehouse";
+import { listWarehouse, getWarehouse, delWarehouse, addWarehouse, updateWarehouse,changeFrozenState } from "@/api/mes/wm/warehouse";
 import {genCode} from "@/api/system/autocode/rule"
+import BarcodeImg from "@/components/barcodeImg/index.vue"
 export default {
   name: "Warehouse",
+  components: { BarcodeImg } ,
   data() {
     return {
       //自动生成编码
@@ -213,7 +240,23 @@ export default {
         charge: null,
       },
       // 表单参数
-      form: {},
+      form: {
+        warehouseId: null,
+        warehouseCode: null,
+        warehouseName: null,
+        location: null,
+        area: null,
+        charge: null,
+        remark: null,
+        attr1: null,
+        attr2: null,
+        attr3: null,
+        attr4: null,
+        createBy: null,
+        createTime: null,
+        updateBy: null,
+        updateTime: null
+      },
       // 表单校验
       rules: {
         warehouseCode: [
@@ -290,9 +333,10 @@ export default {
     },
     // 查询明细按钮操作
     handleView(row){
+      debugger;
       this.reset();
       const warehouseId = row.warehouseId || this.ids
-      getWarehouse(warehouseId).then(response => {
+      getWarehouse(warehouseId).then(response => {        
         this.form = response.data;
         this.open = true;
         this.title = "查看仓库";
@@ -330,6 +374,22 @@ export default {
         }
       });
     },
+
+    /**
+     * 冻结状态变更
+     * @param row 
+     */
+    handleFrozenChange(row){
+      let text = row.frozenFlag === "Y" ? "冻结" : "解冻";
+      this.$modal.confirm('确认要"' + text + '""' + row.warehouseName + '"仓库吗？').then(function() {
+        return changeFrozenState(row.warehouseId,row.frozenFlag);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function() {
+        row.frozenFlag = row.frozenFlag === "N" ? "Y" : "N";
+      });
+
+    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const warehouseIds = row.warehouseId || this.ids;
@@ -349,6 +409,7 @@ export default {
     handleLocation(warehouseId){
       this.$router.push({ path: '/mes/wm/location/index', query: { warehouseId: warehouseId || 0 ,optType: this.optType} })
     },
+
     //自动生成编码
     handleAutoGenChange(autoGenFlag){
       if(autoGenFlag){

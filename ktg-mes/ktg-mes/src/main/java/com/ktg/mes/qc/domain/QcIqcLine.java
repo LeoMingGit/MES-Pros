@@ -65,15 +65,15 @@ public class QcIqcLine extends BaseEntity
 
     /** 致命缺陷数量 */
     @Excel(name = "致命缺陷数量")
-    private Long crQuantity;
+    private BigDecimal crQuantity;
 
     /** 严重缺陷数量 */
     @Excel(name = "严重缺陷数量")
-    private Long majQuantity;
+    private BigDecimal majQuantity;
 
     /** 轻微缺陷数量 */
     @Excel(name = "轻微缺陷数量")
-    private Long minQuantity;
+    private BigDecimal minQuantity;
 
     /** 预留字段1 */
     private String attr1;
@@ -195,30 +195,30 @@ public class QcIqcLine extends BaseEntity
     {
         return thresholdMin;
     }
-    public void setCrQuantity(Long crQuantity) 
+    public void setCrQuantity(BigDecimal crQuantity)
     {
         this.crQuantity = crQuantity;
     }
 
-    public Long getCrQuantity() 
+    public BigDecimal getCrQuantity()
     {
         return crQuantity;
     }
-    public void setMajQuantity(Long majQuantity) 
+    public void setMajQuantity(BigDecimal majQuantity)
     {
         this.majQuantity = majQuantity;
     }
 
-    public Long getMajQuantity() 
+    public BigDecimal getMajQuantity()
     {
         return majQuantity;
     }
-    public void setMinQuantity(Long minQuantity) 
+    public void setMinQuantity(BigDecimal minQuantity)
     {
         this.minQuantity = minQuantity;
     }
 
-    public Long getMinQuantity() 
+    public BigDecimal getMinQuantity()
     {
         return minQuantity;
     }

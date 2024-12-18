@@ -34,6 +34,14 @@ public interface IWmSnService
      */
     public List<WmSn> selectSnList(WmSn wmSn);
 
+
+    /**
+     * 查询指定SN的流转记录
+     * @param sn
+     * @return
+     */
+    public List<WmSn> getStationList(WmSn sn);
+
     /**
      * 新增SN码
      * 

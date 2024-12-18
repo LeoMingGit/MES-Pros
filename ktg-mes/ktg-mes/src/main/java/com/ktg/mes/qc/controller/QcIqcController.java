@@ -1,5 +1,6 @@
 package com.ktg.mes.qc.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,7 +11,10 @@ import com.ktg.mes.pro.domain.ProFeedback;
 import com.ktg.mes.pro.service.IProFeedbackService;
 import com.ktg.mes.qc.domain.*;
 import com.ktg.mes.qc.service.*;
+import com.ktg.mes.wm.domain.WmArrivalNoticeLine;
 import com.ktg.mes.wm.domain.WmItemRecptLine;
+import com.ktg.mes.wm.service.IWmArrivalNoticeLineService;
+import com.ktg.mes.wm.service.IWmArrivalNoticeService;
 import com.ktg.mes.wm.service.IWmItemRecptLineService;
 import com.ktg.mes.wm.service.IWmItemRecptService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +61,10 @@ public class QcIqcController extends BaseController
     private IQcDefectRecordService qcDefectRecordService;
 
     @Autowired
-    private IWmItemRecptLineService wmItemRecptLineService;
+    private IWmArrivalNoticeLineService wmArrivalNoticeLineService;
+
+    @Autowired
+    private IWmArrivalNoticeService wmArrivalNoticeService;
 
 
     /**
@@ -148,12 +155,16 @@ public class QcIqcController extends BaseController
         //如果是完成状态，则根据来源单据更新其对应的检测单
         if(UserConstants.ORDER_STATUS_FINISHED.equals(qcIqc.getStatus())){
             if(StringUtils.isNotNull(qcIqc.getSourceDocCode())){
-                //这里默认是采购入库单，后续有其他单据则根据单据类型(sourceDocType)进行区分
-                WmItemRecptLine line = wmItemRecptLineService.selectWmItemRecptLineByLineId(qcIqc.getSourceLineId());
+                //这里默认是到货通知单，后续有其他单据则根据单据类型(sourceDocType)进行区分
+                WmArrivalNoticeLine line = wmArrivalNoticeLineService.selectWmArrivalNoticeLineByLineId(qcIqc.getSourceLineId());
+
                 if(StringUtils.isNotNull(line)){
                     line.setIqcCode(qcIqc.getIqcCode());
                     line.setIqcId(qcIqc.getIqcId());
-                    wmItemRecptLineService.updateWmItemRecptLine(line);
+                    line.setQuantityQuanlified(qcIqc.getQuantityQualified());
+                    wmArrivalNoticeLineService.updateWmArrivalNoticeLine(line);
+                    //根据行的检测情况更新到货通知单的状态
+                    wmArrivalNoticeService.updateStatus(qcIqc.getSourceDocId());
                 }
             }
         }
@@ -208,9 +219,9 @@ public class QcIqcController extends BaseController
                 line.setUnitOfMeasure(index.getUnitOfMeasure());
                 line.setThresholdMax(index.getThresholdMax());
                 line.setThresholdMin(index.getThresholdMin());
-                line.setCrQuantity(0L);
-                line.setMajQuantity(0L);
-                line.setMajQuantity(0L);
+                line.setCrQuantity(BigDecimal.ZERO);
+                line.setMajQuantity(BigDecimal.ZERO);
+                line.setMajQuantity(BigDecimal.ZERO);
                 qcIqcLineService.insertQcIqcLine(line);
             }
         }

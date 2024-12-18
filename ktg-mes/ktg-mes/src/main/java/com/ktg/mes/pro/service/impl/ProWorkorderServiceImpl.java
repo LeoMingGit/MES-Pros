@@ -1,32 +1,31 @@
 package com.ktg.mes.pro.service.impl;
 
-import java.util.List;
-
 import com.ktg.common.constant.UserConstants;
 import com.ktg.common.utils.DateUtils;
 import com.ktg.common.utils.StringUtils;
-import com.ktg.mes.dv.domain.DvMachineryType;
+import com.ktg.mes.pro.domain.ProWorkorder;
+import com.ktg.mes.pro.mapper.ProWorkorderMapper;
+import com.ktg.mes.pro.service.IProWorkorderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ktg.mes.pro.mapper.ProWorkorderMapper;
-import com.ktg.mes.pro.domain.ProWorkorder;
-import com.ktg.mes.pro.service.IProWorkorderService;
+
+import java.util.List;
 
 /**
  * 生产工单Service业务层处理
- * 
+ *
  * @author yinjinlu
  * @date 2022-05-09
  */
 @Service
-public class ProWorkorderServiceImpl implements IProWorkorderService 
+public class ProWorkorderServiceImpl implements IProWorkorderService
 {
     @Autowired
     private ProWorkorderMapper proWorkorderMapper;
 
     /**
      * 查询生产工单
-     * 
+     *
      * @param workorderId 生产工单主键
      * @return 生产工单
      */
@@ -37,8 +36,20 @@ public class ProWorkorderServiceImpl implements IProWorkorderService
     }
 
     /**
+     * 查询生产工单
+     *
+     * @param workorderId 生产工单主键
+     * @return 生产工单
+     */
+    @Override
+    public List<ProWorkorder> selectProWorkorderListByParentId(Long workorderId)
+    {
+        return proWorkorderMapper.selectProWorkorderListByParentId(workorderId);
+    }
+
+    /**
      * 查询生产工单列表
-     * 
+     *
      * @param proWorkorder 生产工单
      * @return 生产工单
      */
@@ -61,7 +72,7 @@ public class ProWorkorderServiceImpl implements IProWorkorderService
 
     /**
      * 新增生产工单
-     * 
+     *
      * @param proWorkorder 生产工单
      * @return 结果
      */
@@ -81,7 +92,7 @@ public class ProWorkorderServiceImpl implements IProWorkorderService
 
     /**
      * 修改生产工单
-     * 
+     *
      * @param proWorkorder 生产工单
      * @return 结果
      */
@@ -94,7 +105,7 @@ public class ProWorkorderServiceImpl implements IProWorkorderService
 
     /**
      * 批量删除生产工单
-     * 
+     *
      * @param workorderIds 需要删除的生产工单主键
      * @return 结果
      */
@@ -106,7 +117,7 @@ public class ProWorkorderServiceImpl implements IProWorkorderService
 
     /**
      * 删除生产工单信息
-     * 
+     *
      * @param workorderId 生产工单主键
      * @return 结果
      */

@@ -64,6 +64,18 @@
       </el-table-column>
       <el-table-column label="库区名称" align="center" prop="locationName" />
       <el-table-column label="面积" align="center" prop="area" />
+      <el-table-column label="是否冻结" align="center" width="100">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.frozenFlag"
+            active-text="是"
+            inactive-text="否"
+            active-value="Y"
+            inactive-value="N"
+            @change="handleFrozenChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -104,32 +116,46 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="140px">
       <el-row>
-        <el-col :span="8">
-          <el-form-item label="库区编码" prop="locationCode">
-            <el-input v-model="form.locationCode" placeholder="请输入库区编码" />
-          </el-form-item>
+        <el-col :span="14">
+          <el-row>
+            <el-col :span="16">
+              <el-form-item label="库区编码" prop="locationCode">
+                <el-input v-model="form.locationCode" placeholder="请输入库区编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item  label-width="80">
+                <el-switch v-model="autoGenFlag"
+                    active-color="#13ce66"
+                    active-text="自动生成"
+                    @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
+                </el-switch>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="库区名称" prop="locationName">
+                <el-input v-model="form.locationName" placeholder="请输入库区名称" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="面积" prop="area">
+                <el-input-number :min="0" :step="1" :percision="2" v-model="form.area" placeholder="请输入面积" />
+              </el-form-item>
+            </el-col>      
+          </el-row>
         </el-col>
-        <el-col :span="4">
-          <el-form-item  label-width="80">
-            <el-switch v-model="autoGenFlag"
-                active-color="#13ce66"
-                active-text="自动生成"
-                @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-            </el-switch>
-          </el-form-item>
+        <el-col :span="10">
+          <BarcodeImg :bussinessId="form.locationId" :bussinessCode="form.locationCode" barcodeType="LOCATION"></BarcodeImg>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="库区名称" prop="locationName">
-            <el-input v-model="form.locationName" placeholder="请输入库区名称" />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="面积" prop="area">
-            <el-input-number :min="0" :step="1" :percision="2" v-model="form.area" placeholder="请输入面积" />
-          </el-form-item>
-        </el-col>      
       </el-row>
       <el-row>
         <el-col :span="24">
@@ -149,11 +175,13 @@
 </template>
 
 <script>
-import { listLocation, getLocation, delLocation, addLocation, updateLocation } from "@/api/mes/wm/location";
+import { listLocation, getLocation, delLocation, addLocation, updateLocation, changeFrozenState} from "@/api/mes/wm/location";
 import {genCode} from "@/api/system/autocode/rule"
+import BarcodeImg from "@/components/barcodeImg/index.vue"
 export default {
   name: "Location",
   dicts: ['sys_yes_no'],
+  components: { BarcodeImg } ,
   data() {
     return {
       //自动生成编码
@@ -329,6 +357,21 @@ export default {
     handleArea(locationId){
       debugger;
       this.$router.push({ path: '/mes/wm/area/index', query: { locationId: locationId || 0 ,optType: this.optType} })
+    },
+    /**
+     * 冻结状态变更
+     * @param row 
+     */
+     handleFrozenChange(row){
+      let text = row.frozenFlag === "Y" ? "冻结" : "解冻";
+      this.$modal.confirm('确认要"' + text + '""' + row.locationName + '"库区吗？').then(function() {
+        return changeFrozenState(row.locationId,row.frozenFlag);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function() {
+        row.frozenFlag = row.frozenFlag === "N" ? "Y" : "N";
+      });
+
     },
     //自动生成编码
     handleAutoGenChange(autoGenFlag){

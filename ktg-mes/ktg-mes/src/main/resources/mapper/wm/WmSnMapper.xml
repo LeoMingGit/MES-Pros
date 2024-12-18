@@ -14,6 +14,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="unitOfMeasure"    column="unit_of_measure"    />
         <result property="batchCode"    column="batch_code"    />
         <result property="snNum"     column="snNum"></result>
+        <result property="workorderId"     column="workorder_id"></result>
+        <result property="workorderCode"     column="workorder_code"></result>
+        <result property="inputTime"     column="input_time"></result>
         <result property="genDate"   column="gen_date"></result>
         <result property="remark"    column="remark"    />
         <result property="attr1"    column="attr1"    />
@@ -27,7 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectWmSnVo">
-        select sn_id, sn_code, item_id, item_code, item_name, specification, unit_of_measure, batch_code,gen_date, remark, attr1, attr2, attr3, attr4, create_by, create_time, update_by, update_time from wm_sn
+        select sn_id, sn_code, item_id, item_code, item_name, specification, unit_of_measure, batch_code, workorder_id, gen_date, remark, attr1, attr2, attr3, attr4, create_by, create_time, update_by, update_time from wm_sn
     </sql>
 
     <select id="selectWmSnList" parameterType="WmSn" resultMap="WmSnResult">
@@ -40,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="specification != null  and specification != ''"> and specification = #{specification}</if>
             <if test="unitOfMeasure != null  and unitOfMeasure != ''"> and unit_of_measure = #{unitOfMeasure}</if>
             <if test="batchCode != null  and batchCode != ''"> and batch_code = #{batchCode}</if>
+            <if test="workorderId != null  and workorderId != ''"> and workorder_id = #{workorderId}</if>
         </where>
     </select>
     
@@ -63,7 +67,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         group by item_id, item_code, item_name, specification, unit_of_measure, batch_code, gen_date
         order by item_id,batch_code desc
     </select>
-        
+
+    <select id="getStationList" parameterType="WmSn" resultMap="WmSnResult">
+        select sn.sn_id,sn.sn_code,sn.workorder_id,wo.workorder_code, sn.item_id,sn.item_code,sn.item_name,sn.specification,sn.unit_of_measure,ps.input_time
+        from wm_sn sn
+                 left join pro_sn_process ps
+                           on sn.sn_id = ps.sn_id
+                 left join pro_workorder wo
+                           on sn.workorder_id = wo.workorder_id
+        where sn.workorder_id =#{workorderId}
+          and ps.workstation_id = #{workstationId}
+        order by ps.input_time desc
+    </select>
+
+
     <insert id="insertWmSn" parameterType="WmSn" useGeneratedKeys="true" keyProperty="snId">
         insert into wm_sn
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -74,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="specification != null">specification,</if>
             <if test="unitOfMeasure != null">unit_of_measure,</if>
             <if test="batchCode != null">batch_code,</if>
+            <if test="workorderId != null">workorder_id,</if>
             <if test="genDate !=null">gen_date,</if>
             <if test="remark != null">remark,</if>
             <if test="attr1 != null">attr1,</if>
@@ -93,6 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="specification != null">#{specification},</if>
             <if test="unitOfMeasure != null">#{unitOfMeasure},</if>
             <if test="batchCode != null">#{batchCode},</if>
+            <if test="workorderId != null">#{workorderId},</if>
             <if test="genDate !=null">#{genDate},</if>
             <if test="remark != null">#{remark},</if>
             <if test="attr1 != null">#{attr1},</if>
@@ -116,6 +135,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="specification != null">specification = #{specification},</if>
             <if test="unitOfMeasure != null">unit_of_measure = #{unitOfMeasure},</if>
             <if test="batchCode != null">batch_code = #{batchCode},</if>
+            <if test="workorderId != null">workorder_id = #{workorderId},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="attr1 != null">attr1 = #{attr1},</if>
             <if test="attr2 != null">attr2 = #{attr2},</if>

@@ -143,9 +143,9 @@ export default {
   },
   props: {
       optType: undefined,
-      workorder: undefined,      
+      workorder: undefined,
   },
-  created() {
+  mounted() {
     this.getList();
   },
   methods: {
@@ -157,6 +157,7 @@ export default {
         this.workorderbomList = response.rows;
         this.total = response.total;
         this.loading = false;
+        console.log(this.form,'160')
       });
     },
     // 取消按钮

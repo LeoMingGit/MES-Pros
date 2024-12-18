@@ -49,8 +49,8 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="检测结果" prop="checkResult">
-        <el-select v-model="queryParams.checkResult" placeholder="请选择检测结果">
+      <el-form-item label="检测结论" prop="checkResult">
+        <el-select v-model="queryParams.checkResult" placeholder="请选择检测结论">
           <el-option
             v-for="dict in dict.type.mes_qc_result"
             :key="dict.value"
@@ -154,7 +154,7 @@
       <el-table-column label="接收数量" width="90px" align="center" prop="quantityRecived" />
       <el-table-column label="检测数量" width="90px" align="center" prop="quantityCheck" />
       <el-table-column label="不合格数" align="center" prop="quantityUnqualified" />
-      <el-table-column label="检测结果" align="center" prop="checkResult" >
+      <el-table-column label="检测结论" align="center" prop="checkResult" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mes_qc_result" :value="scope.row.checkResult"/>
         </template>
@@ -295,8 +295,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="本次检测数量" prop="quantityCheck">
-              <el-input :min="1" v-model="form.quantityCheck" placeholder="请输入本次检测数量" />
+            <el-form-item label="合格品数量" prop="quantityQualified">
+              <el-input :min="0" v-model="form.quantityQualified" placeholder="请输入合格品数量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -327,8 +327,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="检测结果" prop="checkResult">
-              <el-select v-model="form.checkResult" placeholder="请选择检测结果">
+            <el-form-item label="检测结论" prop="checkResult">
+              <el-select v-model="form.checkResult" placeholder="请选择检测结论">
                 <el-option
                   v-for="dict in dict.type.mes_qc_result"
                   :key="dict.value"
@@ -347,7 +347,7 @@
           </el-col>
         </el-row>
         <el-collapse accordion>
-          <el-collapse-item title="结果统计">
+          <el-collapse-item title="缺陷情况">
             <el-row>
               <el-col :span="8">
                 <el-form-item label="致命缺陷率" prop="crRate">
@@ -384,10 +384,14 @@
             </el-row>
           </el-collapse-item>
         </el-collapse>       
-        <el-divider v-if="form.iqcId !=null" content-position="center">检测项</el-divider> 
-        <el-card shadow="always" v-if="form.iqcId !=null" class="box-card">
+        <el-tabs type="border-card" v-if="form.iqcId != null">
+        <el-tab-pane label="检测项">
           <IqcLine ref=line :iqcId="form.iqcId" :optType="optType"></IqcLine>
-        </el-card>
+        </el-tab-pane>
+        <el-tab-pane label="检测结果">
+          <QCResutl ref="qcResult" :qcId="form.iqcId" :qcType="'IQC'" :optType="optType"></QCResutl>
+        </el-tab-pane>
+      </el-tabs>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancel" v-if="optType =='view' || form.status !='PREPARE' ">返回</el-button>
@@ -404,12 +408,13 @@ import { listIqc, getIqc, delIqc, addIqc, updateIqc } from "@/api/mes/qc/iqc";
 import ItemSelect  from "@/components/itemSelect/single.vue";
 import VendorSelect from "@/components/vendorSelect/single.vue";
 import IqcLine from "./iqcline.vue";
+import QCResutl from "../qcresult/index.vue";
 import {genCode} from "@/api/system/autocode/rule"
 import {getReport,getReport2} from "@/api/mes/report/report"
 export default {
   name: "Iqc",
   dicts: ['mes_qc_result','mes_order_status'],
-  components: {ItemSelect,VendorSelect,IqcLine},
+  components: {ItemSelect,VendorSelect,IqcLine,QCResutl},
   data() {
     return {
       //自动生成编码
@@ -457,6 +462,7 @@ export default {
         quantityMaxUnqualified: null,
         quantityRecived: null,
         quantityCheck: null,
+        quantityQualified: null,
         quantityUnqualified: null,
         crRate: null,
         majRate: null,
@@ -466,7 +472,7 @@ export default {
         minQuantity: null,
         checkResult: null,
         reciveDate: null,
-        inspectDate: null,
+        inspectDate: new Date(),
         inspector: null,
         status: null,
       },
@@ -489,9 +495,6 @@ export default {
         ],
         quantityRecived: [
           { required: true, message: "本次接收数量不能为空", trigger: "blur" }
-        ],
-        quantityCheck: [
-          { required: true, message: "本次检测数量不能为空", trigger: "blur" }
         ],
         reciveDate:[
           { required: true, message: "清选择来料日期", trigger: "blur" }

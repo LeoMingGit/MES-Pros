@@ -7,7 +7,8 @@ create table md_item (
   item_code         varchar(64)     not null                   comment '产品物料编码',
   item_name         varchar(255)    not null                   comment '产品物料名称',
   specification     varchar(500)    default null               comment '规格型号',
-  unit_of_measure   varchar(64)     not null                   comment '单位',
+  unit_of_measure   varchar(64)     not null                   comment '单位编码',
+  unit_name         varchar(64)                                comment '单位名称',
   item_or_product   varchar(20)     not null                   comment '产品物料标识',
   item_type_id      bigint(20)      default 0                  comment '物料类型ID',
   item_type_code    varchar(64)     default ''                 comment '物料类型编码',
@@ -16,9 +17,11 @@ create table md_item (
   safe_stock_flag   char(1)         default 'N' not null       comment '是否设置安全库存',
   min_stock         double(12,4)    default 0                  comment '最低库存量',
   max_stock         double(12,4)    default 0                  comment '最大库存量',
+  high_value        char(1)         default 'N' not null       comment '高价值物资',
+  batch_flag        char(1)         default 'Y' not null       comment '批次管理',
   remark            varchar(500)    default ''                 comment '备注',
   attr1             varchar(64)     default null               comment '预留字段1',
-  attr2             varchar(255)     default null               comment '预留字段2',
+  attr2             varchar(255)     default null              comment '预留字段2',
   attr3             int(11)         default 0                  comment '预留字段3',
   attr4             int(11)         default 0                  comment '预留字段4',
   create_by         varchar(64)     default ''                 comment '创建者',
@@ -79,6 +82,40 @@ create table md_product_bom (
   update_time       datetime                                   comment '更新时间',
   primary key (bom_id)
 ) engine=innodb auto_increment=200 comment = '产品BOM关系表';
+
+-- ----------------------------
+-- 3、物料批次属性配置表
+-- ----------------------------
+drop table if exists md_item_batch_config;
+create table md_item_batch_config (
+  config_id             bigint(20)      not null auto_increment     comment '批次ID',
+  item_id               bigint(20)      not null                    comment '产品物料ID',
+  produce_date_flag     char(1)                                     comment '生产日期',
+  expire_date_flag      char(1)                                     comment '有效期',
+  recpt_date_flag       char(1)                                     comment '入库日期',
+  vendor_flag           char(1)                                     comment '供应商',
+  client_flag           char(1)                                     comment '客户',
+  co_code_flag          char(1)                                     comment '销售订单编号',
+  po_code_flag          char(1)                                     comment '采购订单编号',
+  workorder_flag        char(1)                                     comment '生产工单',
+  task_flag             char(1)                                     comment '生产任务',
+  workstation_flag      char(1)                                     comment '工作站',
+  tool_flag             char(1)                                     comment '工具',
+  mold_flag             char(1)                                     comment '模具',
+  product_code_flag     char(1)                                     comment '生产批号',
+  quality_status_flag   char(1)                                     comment '质量状态',
+  enable_flag           char(1)                                     comment '生效状态',
+  remark                varchar(500)    default ''                  comment '备注',
+  attr1                 varchar(64)     default null                comment '预留字段1',
+  attr2                 varchar(255)    default null                comment '预留字段2',
+  attr3                 int(11)         default 0                   comment '预留字段3',
+  attr4                 int(11)         default 0                   comment '预留字段4',
+  create_by             varchar(64)     default ''                  comment '创建者',
+  create_time           datetime                                    comment '创建时间',
+  update_by             varchar(64)     default ''                  comment '更新者',
+  update_time           datetime                                    comment '更新时间',
+  primary key (config_id)
+) engine=innodb auto_increment=200 comment = '物料批次属性配置表';
 
 
 -- ----------------------------

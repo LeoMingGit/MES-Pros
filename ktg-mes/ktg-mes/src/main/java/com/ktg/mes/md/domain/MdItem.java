@@ -1,5 +1,6 @@
 package com.ktg.mes.md.domain;
 
+import com.ktg.common.annotation.Excel;
 import com.ktg.common.core.domain.BaseEntity;
 
 import javax.validation.constraints.NotBlank;
@@ -12,18 +13,27 @@ public class MdItem extends BaseEntity {
 
 
     private Long itemId;
+    @Excel(name = "物料/产品编码")
     private String itemCode;
+    @Excel(name = "物料/产品名称")
     private String itemName;
+    @Excel(name = "规格型号")
     private String specification;
+    @Excel(name = "单位编码")
     private String unitOfMeasure;
+    @Excel(name = "单位名称")
+    private String unitName;
     private String itemOrProduct;
     private Long itemTypeId;
     private String itemTypeCode;
+    @Excel(name = "分类名称")
     private String itemTypeName;
     private String enableFlag;
     private String safeStockFlag;
     private Double minStock;
     private Double maxStock;
+    private String highValue;
+    private String batchFlag;
     private String attr1;
     private String attr2;
     private String attr3;
@@ -37,7 +47,6 @@ public class MdItem extends BaseEntity {
         this.itemId = itemId;
     }
 
-    @NotBlank(message = "物料产品编码不能为空")
     @Size(min = 0,max = 64,message = "物料产品编码长度不能超过64个字符")
     public String getItemCode() {
         return itemCode;
@@ -66,7 +75,7 @@ public class MdItem extends BaseEntity {
         this.specification = specification;
     }
 
-    @NotBlank(message = "单位不能为空")
+    @NotBlank(message = "单位编码不能为空")
     public String getUnitOfMeasure() {
         return unitOfMeasure;
     }
@@ -75,6 +84,13 @@ public class MdItem extends BaseEntity {
         this.unitOfMeasure = unitOfMeasure;
     }
 
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
 
     public String getItemOrProduct() {
         return itemOrProduct;
@@ -139,6 +155,22 @@ public class MdItem extends BaseEntity {
 
     public void setMaxStock(Double maxStock) {
         this.maxStock = maxStock;
+    }
+
+    public String getHighValue() {
+        return highValue;
+    }
+
+    public String getBatchFlag() {
+        return batchFlag;
+    }
+
+    public void setBatchFlag(String batchFlag) {
+        this.batchFlag = batchFlag;
+    }
+
+    public void setHighValue(String highValue) {
+        this.highValue = highValue;
     }
 
     public String getAttr1() {

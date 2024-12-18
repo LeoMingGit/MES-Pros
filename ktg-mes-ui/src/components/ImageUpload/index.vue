@@ -76,7 +76,7 @@ export default {
       dialogImageUrl: "",
       dialogVisible: false,
       hideUpload: false,
-      baseUrl: process.env.VUE_APP_BASE_API,
+      baseUrl: '',//process.env.VUE_APP_BASE_API,
       uploadImgUrl: process.env.VUE_APP_BASE_API + "/common/uploadMinio", // 上传的图片服务器地址
       headers: {
         Authorization: "Bearer " + getToken(),
@@ -93,6 +93,7 @@ export default {
           // 然后将数组转为对象数组
           this.fileList = list.map(item => {
             if (typeof item === "string") {
+              debugger;
               if (item.indexOf(this.baseUrl) === -1) {
                   item = { name: this.baseUrl + item, url: this.baseUrl + item };
               } else {
@@ -127,6 +128,7 @@ export default {
     },
     // 上传成功回调
     handleUploadSuccess(res) {
+      debugger;
       this.uploadList.push({ name: res.fileName, url: res.fileName });
       if (this.uploadList.length === this.number) {
         this.fileList = this.fileList.concat(this.uploadList);

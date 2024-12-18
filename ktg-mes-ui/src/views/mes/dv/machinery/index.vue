@@ -154,7 +154,7 @@
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
                 v-hasPermi="['mes:dv:machinery:remove']"
-              >删除</el-button>              
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -173,59 +173,72 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-row>
-          <el-col :span="8">
-            <el-form-item label="设备编码" prop="itemCode">
-              <el-input v-model="form.machineryCode" readonly="readonly" maxlength="64" v-if="optType == 'view'"/>
-              <el-input v-model="form.machineryCode" placeholder="请输入设备编码" maxlength="64" v-else/>
-            </el-form-item>
+          <el-col :span="14">
+            <el-row>
+              <el-col :span="16">
+                <el-form-item label="设备编码" prop="itemCode">
+                  <el-input v-model="form.machineryCode" readonly="readonly" maxlength="64" v-if="['view','edit'].indexOf(optType)> -1"/>
+                  <el-input v-model="form.machineryCode" placeholder="请输入设备编码" maxlength="64" v-else/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                             active-color="#13ce66"
+                             active-text="自动生成"
+                             @change="handleAutoGenChange(autoGenFlag)" v-if="['view','edit'].indexOf(optType)< 0">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="设备名称" prop="itemName">
+                  <el-input v-model="form.machineryName"  maxlength="255" readonly="readonly" v-if="optType=='view'" />
+                  <el-input v-model="form.machineryName" placeholder="请输入设备名称" maxlength="255" v-else/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="品牌" prop="machineryBrand">
+                  <el-input v-model="form.machineryBrand"  maxlength="255" readonly="readonly" v-if="optType=='view'" />
+                  <el-input v-model="form.machineryBrand"  placeholder="请输入品牌" maxlength="255" v-else/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item  label="设备分类" prop="machineryTypeId">
+                  <treeselect v-model="form.machineryTypeId" :options="machineryTypeOptions" :normalizer="normalizer" disabled v-if="optType=='view'"  />
+                  <treeselect v-model="form.machineryTypeId" :options="machineryTypeOptions" :normalizer="normalizer" placeholder="请选择所属分类" v-else :disable-branch-nodes='true' />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="所属车间" prop="workshopId">
+                  <el-select v-model="form.workshopId" placeholder="请选择车间">
+                    <el-option
+                        v-for="item in workshopOptions"
+                        :key="item.workshopId"
+                        :label="item.workshopName"
+                        :value="item.workshopId"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
-          <el-col :span="4">
-            <el-form-item  label-width="80">
-              <el-switch v-model="autoGenFlag"
-                  active-color="#13ce66"
-                  active-text="自动生成"
-                  @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="设备名称" prop="itemName">
-              <el-input v-model="form.machineryName"  maxlength="255" readonly="readonly" v-if="optType=='view'" />
-              <el-input v-model="form.machineryName" placeholder="请输入设备名称" maxlength="255" v-else/>
-            </el-form-item>
+          <el-col :span="10">
+            <BarcodeImg ref="barcodeImg" :bussinessId="form.machineryId" :bussinessCode="form.machineryCode" barcodeType="MACHINERY"></BarcodeImg>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="品牌" prop="machineryBrand">
-              <el-input v-model="form.machineryBrand"  maxlength="255" readonly="readonly" v-if="optType=='view'" />
-              <el-input v-model="form.machineryBrand"  placeholder="请输入品牌" maxlength="255" v-else/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item  label="设备分类" prop="machineryTypeId">
-              <treeselect v-model="form.machineryTypeId" :options="machineryTypeOptions" :normalizer="normalizer" disabled v-if="optType=='view'"  />
-              <treeselect v-model="form.machineryTypeId" :options="machineryTypeOptions" :normalizer="normalizer" placeholder="请选择所属分类" v-else :disable-branch-nodes='true' />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="规格型号" prop="machinerySpec">
               <el-input v-model="form.machinerySpec" type="textarea" maxlength="255" readonly="readonly" v-if="optType=='view'" />
               <el-input v-model="form.machinerySpec" type="textarea" placeholder="请输入规格型号" maxlength="255" v-else/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="所属车间" prop="workshopId">
-            <el-select v-model="form.workshopId" placeholder="请选择车间">
-              <el-option
-                v-for="item in workshopOptions"
-                :key="item.workshopId"
-                :label="item.workshopName"
-                :value="item.workshopId"
-              ></el-option>
-            </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -285,11 +298,13 @@ import {genCode} from "@/api/system/autocode/rule"
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import BarcodeImg from "@/components/barcodeImg/index.vue"
+import {getBarcodeUrl} from "@/api/mes/wm/barcode";
 
 export default {
   name: "Machinery",
   dicts: ['sys_yes_no','mes_machinery_status'],
-  components: { Treeselect },
+  components: { Treeselect,BarcodeImg },
   data() {
     return {
       //自动生成编码
@@ -341,6 +356,13 @@ export default {
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
         url: process.env.VUE_APP_BASE_API + "/mes/dv/machinery/importData"
+      },
+      //二维码查询参数
+      barcodeParams: {
+        bussinessId: null,
+        bussinessCode: null,
+        barcodeFormart: 'QR_CODE', //模式二维码
+        barcodeType: 'MACHINERY' //类型
       },
       // 查询参数
       queryParams: {
@@ -457,7 +479,7 @@ export default {
         createBy: null,
         createTime: null,
         updateBy: null,
-        updateTime: null       
+        updateTime: null
       };
       this.autoGenFlag = false;
       this.resetForm("form");
@@ -489,6 +511,9 @@ export default {
         this.open = true;
         this.title = "查看设备信息";
         this.optType = "view";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
       });
     },
     /** 新增按钮操作 */
@@ -515,8 +540,12 @@ export default {
         this.open = true;
         this.title = "修改设备";
         this.optType = "edit";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
       });
     },
+
     /** 提交按钮 */
     submitForm: function() {
       this.$refs["form"].validate(valid => {
@@ -593,3 +622,17 @@ export default {
   }
 };
 </script>
+<style scoped>
+.flex-container{
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+.barcodeClass {
+  width: 200px;
+  height: 200px;
+  border: 1px dashed;
+  position: relative;
+  display: inline-block;
+}
+</style>

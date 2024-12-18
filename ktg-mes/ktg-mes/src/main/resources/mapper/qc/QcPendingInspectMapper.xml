@@ -50,8 +50,8 @@
         FROM
             (
                 SELECT
-                    wi.recpt_id as source_doc_id,
-                    wi.recpt_code AS source_doc_code,
+                    wi.notice_id as source_doc_id,
+                    wi.notice_code AS source_doc_code,
                     wil.line_id AS source_line_id,
                     wi.create_time AS record_time,
                     'IQC' AS qc_type,
@@ -60,7 +60,7 @@
                     wil.item_name,
                     wil.specification,
                     wil.unit_of_measure,
-                    wil.quantity_recived AS quantity_uncheck,
+                    wil.quantity_arrival AS quantity_uncheck,
                     NULL AS workorder_id,
                     NULL AS workorder_code,
                     NULL AS workorder_name,
@@ -74,23 +74,25 @@
                     wi.vendor_code as vendor_client_code,
                     wi.vendor_name as vendor_client_name,
                     wi.vendor_nick as vendor_client_nick,
-                    wil.batch_code,
-                    wil.warehouse_id,
-                    wil.warehouse_code,
-                    wil.warehouse_name,
-                    wil.location_id,
-                    wil.location_code,
-                    wil.location_name,
-                    wil.area_id,
-                    wil.area_code,
-                    wil.area_name,
-                    concat( wil.warehouse_name, wil.location_name, wil.area_name ) AS address
+                    null as batch_code,
+                    null as warehouse_id,
+                    null as warehouse_code,
+                    null as warehouse_name,
+                    null as location_id,
+                    NULL AS location_code,
+                    NULL AS location_name,
+                    NULL AS area_id,
+                    NULL AS area_code,
+                    NULL AS area_name,
+                    NULL AS address
                 FROM
-                    wm_item_recpt wi
-                        LEFT JOIN wm_item_recpt_line wil ON wi.recpt_id = wil.recpt_id
+                    wm_arrival_notice wi
+                        LEFT JOIN wm_arrival_notice_line wil ON wi.notice_id = wil.notice_id
                 WHERE
                     wil.iqc_check = 'Y'
-                  AND wil.iqc_id IS NULL UNION ALL
+                  AND wil.iqc_id IS NULL
+                  AND wi.status = 'APPROVING'
+                UNION ALL
                 SELECT
                     pf.record_id as source_doc_id,
                     pf.feedback_code AS source_doc_code,

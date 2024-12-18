@@ -4,6 +4,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ktg.common.constant.UserConstants;
+import com.ktg.common.core.domain.entity.SysUser;
 import com.ktg.mes.wm.utils.WmBarCodeUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.ktg.mes.md.domain.MdVendor;
 import com.ktg.mes.md.service.IMdVendorService;
 import com.ktg.common.utils.poi.ExcelUtil;
 import com.ktg.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 供应商Controller
@@ -62,6 +64,37 @@ public class MdVendorController extends BaseController
         List<MdVendor> list = mdVendorService.selectMdVendorList(mdVendor);
         ExcelUtil<MdVendor> util = new ExcelUtil<MdVendor>(MdVendor.class);
         util.exportExcel(response, list, "供应商数据");
+    }
+
+    /**
+     * 下载导入模板
+     * @param response
+     */
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<MdVendor> util = new ExcelUtil<MdVendor>(MdVendor.class);
+        util.importTemplateExcel(response, "供应商数据");
+    }
+
+
+    /**
+     * 从模板导入供应商数据
+     * @param file
+     * @param updateSupport
+     * @return
+     * @throws Exception
+     */
+    @Log(title = "供应商", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('mes:md:vendor:import')")
+    @PostMapping("/importData")
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<MdVendor> util = new ExcelUtil<MdVendor>(MdVendor.class);
+        List<MdVendor> vendorList = util.importExcel(file.getInputStream());
+        String operName = getUsername();
+        String message = mdVendorService.importVendor(vendorList, updateSupport, operName);
+        return AjaxResult.success(message);
     }
 
     /**

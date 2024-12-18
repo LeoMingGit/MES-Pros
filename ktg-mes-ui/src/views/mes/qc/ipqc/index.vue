@@ -343,8 +343,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="检测结果" prop="checkResult">
-              <el-select v-model="form.checkResult" placeholder="请选择检验结果">
+            <el-form-item label="检测结论" prop="checkResult">
+              <el-select v-model="form.checkResult" placeholder="请选择检验结论">
                 <el-option
                   v-for="dict in dict.type.mes_qc_result"
                   :key="dict.value"
@@ -368,10 +368,14 @@
           </el-col>
         </el-row>
       </el-form>
-      <el-divider v-if="form.ipqcId !=null" content-position="center">检测项</el-divider> 
-      <el-card shadow="always" v-if="form.ipqcId !=null" class="box-card">
-          <Ipqcline ref=line :ipqcId="form.ipqcId" :optType="optType"></Ipqcline>
-      </el-card>
+      <el-tabs type="border-card" v-if="form.ipqcId != null">
+          <el-tab-pane label="检测项">
+            <Ipqcline ref=line :ipqcId="form.ipqcId" :optType="optType"></Ipqcline>
+          </el-tab-pane>
+          <el-tab-pane label="检测结果">
+            <QCResutl ref="qcResult" :qcId="form.ipqcId" :qcType="'IPQC'" :optType="optType"></QCResutl>
+          </el-tab-pane>
+      </el-tabs>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancel" v-if="optType =='view' || form.status !='PREPARE' ">返回</el-button>
         <el-button type="primary" @click="submitForm" v-if="form.status =='PREPARE' && optType !='view' ">保 存</el-button>
@@ -388,9 +392,10 @@ import {genCode} from "@/api/system/autocode/rule"
 import WorkorderSelect from "@/components/workorderSelect/single.vue"
 import WorkstationSelect from "@/components/workstationSelect/simpletableSingle.vue"
 import Ipqcline from "./line.vue"
+import QCResutl from "../qcresult/index.vue";
 export default {
   name: "Ipqc",
-  components: {WorkorderSelect,WorkstationSelect,Ipqcline},
+  components: {WorkorderSelect,WorkstationSelect,Ipqcline,QCResutl},
   dicts: ['mes_ipqc_type','mes_qc_result','mes_order_status'],
   data() {
     return {
@@ -688,7 +693,7 @@ export default {
     //自动生成编码
     handleAutoGenChange(autoGenFlag){
       if(autoGenFlag){
-        genCode('IPQC_CODE').then(response =>{
+        genCode('QC_IPQC_CODE').then(response =>{
           this.form.ipqcCode = response;
         });
       }else{

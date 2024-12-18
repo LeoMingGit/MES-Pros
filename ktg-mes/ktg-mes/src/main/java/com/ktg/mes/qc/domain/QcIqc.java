@@ -86,11 +86,11 @@ public class QcIqc extends BaseEntity
 
     /** 最低检测数 */
     @Excel(name = "最低检测数")
-    private Long quantityMinCheck;
+    private BigDecimal quantityMinCheck;
 
     /** 最大不合格数 */
     @Excel(name = "最大不合格数")
-    private Long quantityMaxUnqualified;
+    private BigDecimal quantityMaxUnqualified;
 
     /** 本次接收数量 */
     @Excel(name = "本次接收数量")
@@ -98,11 +98,17 @@ public class QcIqc extends BaseEntity
 
     /** 本次检测数量 */
     @Excel(name = "本次检测数量")
-    private Long quantityCheck;
+    private BigDecimal quantityCheck;
+
+    /**
+     * 合格品数量
+     */
+    @Excel(name = "合格品数量")
+    private BigDecimal quantityQualified;
 
     /** 不合格数 */
     @Excel(name = "不合格数")
-    private Long quantityUnqualified;
+    private BigDecimal quantityUnqualified;
 
     /** 致命缺陷率 */
     @Excel(name = "致命缺陷率")
@@ -118,15 +124,15 @@ public class QcIqc extends BaseEntity
 
     /** 致命缺陷数量 */
     @Excel(name = "致命缺陷数量")
-    private Long crQuantity;
+    private BigDecimal crQuantity;
 
     /** 严重缺陷数量 */
     @Excel(name = "严重缺陷数量")
-    private Long majQuantity;
+    private BigDecimal majQuantity;
 
     /** 轻微缺陷数量 */
     @Excel(name = "轻微缺陷数量")
-    private Long minQuantity;
+    private BigDecimal minQuantity;
 
     /** 检测结果 */
     @Excel(name = "检测结果")
@@ -323,21 +329,21 @@ public class QcIqc extends BaseEntity
     {
         return unitOfMeasure;
     }
-    public void setQuantityMinCheck(Long quantityMinCheck) 
+    public void setQuantityMinCheck(BigDecimal quantityMinCheck)
     {
         this.quantityMinCheck = quantityMinCheck;
     }
 
-    public Long getQuantityMinCheck() 
+    public BigDecimal getQuantityMinCheck()
     {
         return quantityMinCheck;
     }
-    public void setQuantityMaxUnqualified(Long quantityMaxUnqualified) 
+    public void setQuantityMaxUnqualified(BigDecimal quantityMaxUnqualified)
     {
         this.quantityMaxUnqualified = quantityMaxUnqualified;
     }
 
-    public Long getQuantityMaxUnqualified() 
+    public BigDecimal getQuantityMaxUnqualified()
     {
         return quantityMaxUnqualified;
     }
@@ -350,21 +356,30 @@ public class QcIqc extends BaseEntity
     {
         return quantityRecived;
     }
-    public void setQuantityCheck(Long quantityCheck) 
+    public void setQuantityCheck(BigDecimal quantityCheck)
     {
         this.quantityCheck = quantityCheck;
     }
 
-    public Long getQuantityCheck() 
+    public BigDecimal getQuantityCheck()
     {
         return quantityCheck;
     }
-    public void setQuantityUnqualified(Long quantityUnqualified) 
+
+    public BigDecimal getQuantityQualified() {
+        return quantityQualified;
+    }
+
+    public void setQuantityQualified(BigDecimal quantityQualified) {
+        this.quantityQualified = quantityQualified;
+    }
+
+    public void setQuantityUnqualified(BigDecimal quantityUnqualified)
     {
         this.quantityUnqualified = quantityUnqualified;
     }
 
-    public Long getQuantityUnqualified() 
+    public BigDecimal getQuantityUnqualified()
     {
         return quantityUnqualified;
     }
@@ -395,30 +410,30 @@ public class QcIqc extends BaseEntity
     {
         return minRate;
     }
-    public void setCrQuantity(Long crQuantity) 
+    public void setCrQuantity(BigDecimal crQuantity)
     {
         this.crQuantity = crQuantity;
     }
 
-    public Long getCrQuantity() 
+    public BigDecimal getCrQuantity()
     {
         return crQuantity;
     }
-    public void setMajQuantity(Long majQuantity) 
+    public void setMajQuantity(BigDecimal majQuantity)
     {
         this.majQuantity = majQuantity;
     }
 
-    public Long getMajQuantity() 
+    public BigDecimal getMajQuantity()
     {
         return majQuantity;
     }
-    public void setMinQuantity(Long minQuantity) 
+    public void setMinQuantity(BigDecimal minQuantity)
     {
         this.minQuantity = minQuantity;
     }
 
-    public Long getMinQuantity() 
+    public BigDecimal getMinQuantity()
     {
         return minQuantity;
     }

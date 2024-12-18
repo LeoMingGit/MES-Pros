@@ -8,6 +8,8 @@ create table qc_index (
   index_name                  varchar(255)    not null                   comment '检测项名称',
   index_type                  varchar(64)     not null                   comment '检测项类型',
   qc_tool                     varchar(255)                               comment '检测工具',
+  qc_result_type              varchar(64)     not null                   comment '质检值类型',
+  qc_result_spc               varchar(255)                               comment '值属性',
   remark                      varchar(500)    default ''                 comment '备注',
   attr1                       varchar(64)     default null               comment '预留字段1',
   attr2                       varchar(255)    default null               comment '预留字段2',
@@ -116,6 +118,7 @@ create table qc_defect (
   defect_name                 varchar(500)    not null                   comment '缺陷描述',
   index_type                  varchar(64)     not null                   comment '检测项类型',
   defect_level                varchar(64)     not null                   comment '缺陷等级',
+  process_method              varchar(500)                               comment '处置方法',
   remark                      varchar(500)    default ''                 comment '备注',
   attr1                       varchar(64)     default null               comment '预留字段1',
   attr2                       varchar(255)    default null               comment '预留字段2',
@@ -156,7 +159,8 @@ create table qc_iqc (
   quantity_min_check          int(11)         default 1                  comment '最低检测数',
   quantity_max_unqualified    int(11)         default 0                  comment '最大不合格数',
   quantity_recived            double(12,2)    not null                   comment '本次接收数量',
-  quantity_check              int(11)         not null                   comment '本次检测数量',
+  quantity_check              int(11)                                    comment '本次检测数量',
+  quantity_qualified          int(11)         default 0                  comment '合格数',
   quantity_unqualified        int(11)         default 0                  comment '不合格数',
   cr_rate                     double(12,2)    default 0                  comment '致命缺陷率',
   maj_rate                    double(12,2)    default 0                  comment '严重缺陷率',
@@ -429,4 +433,71 @@ create table qc_oqc_line (
 
 
 
+
+-- ----------------------------
+-- 14、检测结果记录表
+-- ----------------------------
+drop table if exists qc_result;
+create table qc_result (
+  result_id                   bigint(20)      not null auto_increment    comment '记录ID',
+  result_code                 varchar(64)     not null                   comment '样品编号',
+  source_doc_id               bigint(20)                                 comment '关联的质检单ID',
+  source_doc_code             varchar(64)                                comment '关联的质检单编号',
+  source_doc_name             varchar(255)                               comment '关联的质检单名称',
+  source_doc_type             varchar(64)                                comment '关联的质检单类型',
+  item_id                     bigint(20)      not null                   comment '产品物料ID',
+  item_code                   varchar(64)                                comment '产品物料编码',
+  item_name                   varchar(255)                               comment '产品物料名称',
+  specification               varchar(500)                               comment '规格型号',
+  unit_of_measure             varchar(64)                                comment '单位',
+  sn_code                     varchar(255)                               comment '对应的物资SN',
+  remark                      varchar(500)    default ''                 comment '备注',
+  attr1                       varchar(64)     default null               comment '预留字段1',
+  attr2                       varchar(255)    default null               comment '预留字段2',
+  attr3                       int(11)         default 0                  comment '预留字段3',
+  attr4                       int(11)         default 0                  comment '预留字段4',
+  create_by                   varchar(64)     default ''                 comment '创建者',
+  create_time                 datetime                                   comment '创建时间',
+  update_by                   varchar(64)     default ''                 comment '更新者',
+  update_time                 datetime                                   comment '更新时间',
+  primary key (result_id)
+) engine=innodb auto_increment=200 comment = '检测结果记录表';
+
+
+-- ----------------------------
+-- 14、检测结果明细记录表
+-- ----------------------------
+drop table if exists qc_result_detail;
+create table qc_result_detail (
+  detail_id                   bigint(20)      not null auto_increment    comment '流水号',
+  result_id                   bigint(20)      not null                   comment '结果记录ID',
+  index_id                    bigint(20)      not null                   comment '检测项ID',
+  index_code                  varchar(64)                                comment '检测项编码',
+  index_name                  varchar(256)                               comment '检测项名称',
+  index_type                  varchar(64)                                comment '检测项类型',
+  qc_tool                     varchar(255)                               comment '检测工具',
+  check_method                varchar(500)                               comment '检测要求',
+  stander_val                 double(12,4)                               comment '标准值',
+  unit_of_measure             varchar(64)                                comment '单位',
+  threshold_max               double(12,4)                               comment '误差上限',
+  threshold_min               double(12,4)                               comment '误差下限',
+  qc_result_type              varchar(64)     not null                   comment '质检值类型',
+  qc_result_spc               varchar(255)                               comment '值属性',
+  qc_val_float                float(14,4)                                comment '浮点值',
+  qc_val_integer              int(11)                                    comment '整数',
+  qc_val_text                 varchar(500)                               comment '文字',
+  qc_val_dict                 varchar(64)                                comment '字典项',
+  qc_val_file                 varchar(255)                               comment '文件',
+  defect_flag                 varchar(64)     default 'normarl'          comment '判定',
+  remark                      varchar(500)    default ''                 comment '备注',
+  attr1                       varchar(64)     default null               comment '预留字段1',
+  attr2                       varchar(255)    default null               comment '预留字段2',
+  attr3                       int(11)         default 0                  comment '预留字段3',
+  attr4                       int(11)         default 0                  comment '预留字段4',
+  create_by                   varchar(64)     default ''                 comment '创建者',
+  create_time                 datetime                                   comment '创建时间',
+  update_by                   varchar(64)     default ''                 comment '更新者',
+  update_time                 datetime                                   comment '更新时间',
+  primary key (detail_id)
+) engine=innodb auto_increment=200 comment = '检测结果明细记录表';
 

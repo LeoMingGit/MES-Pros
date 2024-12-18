@@ -41,7 +41,6 @@
     <Defectrecord ref="defectDialog" :qcId="defect_iqcid" :lineId="defect_lineid" :qcType="defect_qctype" :optType="optType"></Defectrecord>
   </div>
 </template>
-
 <script>
 import { listIqcline, getIqcline, delIqcline, addIqcline, updateIqcline } from "@/api/mes/qc/iqcline";
 import Defectrecord from "../defectrecord/index.vue"

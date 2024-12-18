@@ -20,15 +20,9 @@
 系统将提供“售前”、“实施”、“用户培训”、“运维”等多个阶段的指导文档和教学视频，以帮助非IT专业人士顺利完成MES项目的实施应用。
 
 - 前端代码地址：https://gitee.com/kutangguo/ktg-mes-ui
-
-- 触控屏端地址：https://gitee.com/kutangguo/ktg-mes-pad
-
 - PC端在线体验地址： [http://www.029tec.com](http://www.029tec.com/)  <font color='red'>【请不要修改账户密码，以免影响其他人体验】</font>
-
 - 当前开发进度请参考doc->开发进度->进度甘特图.xlsx
-
 - 第一版售前PPT请查看doc->售前资料->《苦糖果MES系统产品介绍（A4横板）.pptx》
-
 - 操作手册/软件说明书请参考doc->售前资料->《苦糖果生产执行管理系统-【软件说明书】.docx》
 
 欢迎交流沟通：QQ：411641505

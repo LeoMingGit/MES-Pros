@@ -1,6 +1,8 @@
 package com.ktg.mes.wm.mapper;
 
 import java.util.List;
+
+import com.ktg.mes.pro.domain.ProSnProcess;
 import com.ktg.mes.wm.domain.WmSn;
 
 /**
@@ -33,6 +35,13 @@ public interface WmSnMapper
      * @return
      */
     public List<WmSn> selectSnList(WmSn wmSn);
+
+    /**
+     * 查询指定SN的流转记录
+     * @param sn
+     * @return
+     */
+    public List<WmSn> getStationList(WmSn sn);
 
     /**
      * 新增SN码

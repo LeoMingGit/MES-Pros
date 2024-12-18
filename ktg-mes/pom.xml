@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
     <groupId>com.ktg</groupId>
     <artifactId>ktg</artifactId>
     <version>3.8.2</version>
@@ -11,7 +11,7 @@
     <name>ktg</name>
     <url>http://www.029tec.com</url>
     <description>MES生产执行管理系统</description>
-    
+
     <properties>
         <ktg.version>3.8.2</ktg.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -34,7 +34,7 @@
         <velocity.version>1.7</velocity.version>
         <jwt.version>0.9.1</jwt.version>
     </properties>
-	
+
     <!-- 依赖声明 -->
     <dependencyManagement>
         <dependencies>
@@ -212,6 +212,13 @@
                 <version>${ktg.version}</version>
             </dependency>
 
+            <!-- 打印模块 -->
+            <dependency>
+                <groupId>com.ktg</groupId>
+                <artifactId>ktg-print</artifactId>
+                <version>${ktg.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -223,6 +230,7 @@
         <module>ktg-generator</module>
         <module>ktg-common</module>
         <module>ktg-mes</module>
+        <module>ktg-print</module>
     </modules>
     <packaging>pom</packaging>
 

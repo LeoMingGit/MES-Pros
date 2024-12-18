@@ -98,7 +98,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -111,56 +111,68 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="车间编码" prop="workshopCode">
-              <el-input v-model="form.workshopCode" placeholder="请输入车间编码" />
-            </el-form-item>
+          <el-col :span="14">
+            <el-row>
+              <el-col :span="16">
+                <el-form-item label="车间编码" prop="workshopCode">
+                  <el-input v-model="form.workshopCode" readonly="readonly" maxlength="64" v-if="['view','edit'].indexOf(optType)> -1"/>
+                  <el-input v-model="form.workshopCode" placeholder="请输入车间编码" maxlength="64" v-else/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                             active-color="#13ce66"
+                             active-text="自动生成"
+                             @change="handleAutoGenChange(autoGenFlag)" v-if="['view','edit'].indexOf(optType)< 0">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="车间名称" prop="workshopName">
+                  <el-input v-model="form.workshopName" placeholder="请输入车间名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="面积" prop="area">
+                  <el-input-number :min="0" :percision="2" :step="1" v-model="form.area" placeholder="请输入面积" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="负责人" prop="charge">
+                  <el-input v-model="form.charge" placeholder="请输入负责人" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="是否启用" prop="enableFlag">
+                  <el-radio-group v-model="form.enableFlag" disabled v-if="optType=='view'">
+                    <el-radio
+                        v-for="dict in dict.type.sys_yes_no"
+                        :key="dict.value"
+                        :label="dict.value"
+                    >{{dict.label}}</el-radio>
+                  </el-radio-group>
+                  <el-radio-group v-model="form.enableFlag" v-else>
+                    <el-radio
+                        v-for="dict in dict.type.sys_yes_no"
+                        :key="dict.value"
+                        :label="dict.value"
+                    >{{dict.label}}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
-          <el-col :span="12">
-            <el-form-item  label-width="80">
-                <el-switch v-model="autoGenFlag"
-                    active-color="#13ce66"
-                    active-text="自动生成"
-                    @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-                </el-switch>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="车间名称" prop="workshopName">
-              <el-input v-model="form.workshopName" placeholder="请输入车间名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="面积" prop="area">
-              <el-input-number :min="0" :percision="2" :step="1" v-model="form.area" placeholder="请输入面积" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="负责人" prop="charge">
-              <el-input v-model="form.charge" placeholder="请输入负责人" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否启用" prop="enableFlag">
-              <el-radio-group v-model="form.enableFlag" disabled v-if="optType=='view'">
-                <el-radio
-                  v-for="dict in dict.type.sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
-              <el-radio-group v-model="form.enableFlag" v-else>
-                <el-radio
-                  v-for="dict in dict.type.sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
+          <el-col :span="10">
+            <BarcodeImg ref="barcodeImg" :bussinessId="form.workshopId" :bussinessCode="form.workshopCode" barcodeType="WORKSHOP"></BarcodeImg>
           </el-col>
         </el-row>
         <el-row>
@@ -183,7 +195,10 @@
 <script>
 import { listWorkshop, getWorkshop, delWorkshop, addWorkshop, updateWorkshop } from "@/api/mes/md/workshop";
 import {genCode} from "@/api/system/autocode/rule"
+import BarcodeImg from "@/components/barcodeImg/index.vue"
+import {getBarcodeUrl} from "@/api/mes/wm/barcode";
 export default {
+  components:{BarcodeImg},
   name: "Workshop",
   dicts: ['sys_yes_no'],
   data() {
@@ -208,6 +223,13 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      //二维码查询参数
+      barcodeParams: {
+        bussinessId: null,
+        bussinessCode: null,
+        barcodeFormart: 'QR_CODE', //模式二维码
+        barcodeType: 'WORKSHOP' //类型
+      },
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -306,6 +328,9 @@ export default {
         this.open = true;
         this.title = "查看车间";
         this.optType = "view";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
       });
     },
     /** 修改按钮操作 */
@@ -317,6 +342,9 @@ export default {
         this.open = true;
         this.title = "修改车间";
         this.optType = "edit";
+        this.$nextTick(()=>{
+          this.$refs.barcodeImg.getBarcode();
+        })
       });
     },
     /** 提交按钮 */
@@ -355,6 +383,16 @@ export default {
         ...this.queryParams
       }, `workshop_${new Date().getTime()}.xlsx`)
     },
+    //获取二维码地址
+    getBarcodeUrl(){
+      this.barcodeParams.bussinessId = this.form.workshopId;
+      this.barcodeParams.bussinessCode = this.form.workshopCode;
+      getBarcodeUrl(this.barcodeParams).then( response =>{
+        if(response.data != null){
+          this.$set(this.form,'barcodeUrl',response.data.barcodeUrl);//强制刷新DOM
+        }
+      });
+    },
     //自动生成物料编码
     handleAutoGenChange(autoGenFlag){
       debugger;
@@ -365,8 +403,22 @@ export default {
       }else{
         this.form.workshopCode = null;
       }
-      
+
     }
   }
 };
 </script>
+<style scoped>
+.flex-container{
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+.barcodeClass {
+  width: 200px;
+  height: 200px;
+  border: 1px dashed;
+  position: relative;
+  display: inline-block;
+}
+</style>

@@ -40,6 +40,7 @@
         <if test="ruleName != null and ruleName != ''">
             AND rule_name like concat('%', #{ruleName}, '%')
         </if>
+        order by create_time desc
     </select>
 
     <select id="findById" parameterType="Long" resultMap="SysAutoCodeRuleResult">
@@ -103,6 +104,7 @@
     <update id="updateSysAutoCodeRule" parameterType="SysAutoCodeRule">
         update sys_auto_code_rule
         <set>
+            <if test="ruleCode !=null and ruleCode !=''">rule_code = #{ruleCode},</if>
             rule_name = #{ruleName},
             <if test="ruleDesc !=null and ruleDesc !=''">rule_desc = #{ruleDesc},</if>
             max_length = #{maxLength},

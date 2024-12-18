@@ -6,7 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.date.DateUtil;
 import com.ktg.common.constant.UserConstants;
+import com.ktg.common.utils.StringUtils;
 import com.ktg.system.strategy.AutoCodeUtil;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +89,23 @@ public class WmSnController extends BaseController
     {
         return AjaxResult.success(wmSnService.selectWmSnBySnId(snId));
     }
+
+    @ApiOperation("查询某个工作站下指定工单的所有SN过站记录接口")
+    @PreAuthorize("@ss.hasPermi('mes:pro:procard:list')")
+    @GetMapping("/getStationList")
+    public AjaxResult getStationList(WmSn sn){
+        if(!StringUtils.isNotNull(sn.getWorkorderId())){
+            return AjaxResult.error("请指定生产工单ID");
+        }
+
+        if(StringUtils.isNotNull(sn.getWorkstationId())){
+            return AjaxResult.error("请指定工作站!");
+        }
+
+        List<WmSn> snList = wmSnService.getStationList(sn);
+        return AjaxResult.success(snList);
+    }
+
 
     /**
      * 新增SN码

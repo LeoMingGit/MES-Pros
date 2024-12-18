@@ -89,6 +89,11 @@
         </template>
       </el-table-column>
       <el-table-column label="检测工具" align="center" prop="qcTool" />
+      <el-table-column label="检测值类型" align="center" prop="qcResultType">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.mes_qc_result_type" :value="scope.row.qcResultType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -161,6 +166,34 @@
           </el-col>
         </el-row>
         <el-row>
+          <el-col :span="12">
+            <el-form-item label="检测值类型" prop="qcResultType">
+              <el-select v-model="form.qcResultType" placeholder="请选择检测值类型">
+                <el-option
+                  v-for="dict in dict.type.mes_qc_result_type"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="类型" v-if="form.qcResultType == 'FILE' " prop="qcResultSpc">
+              <el-radio-group v-model="form.qcResultSpc" placeholder="请选择文件属性">
+                <el-radio label="IMG">图片/照片</el-radio>
+                <el-radio label="FILE">文件</el-radio>
+              </el-radio-group>              
+            </el-form-item>
+            <el-form-item label="字典项" v-else-if="form.qcResultType == 'DICT' " prop="qcResultSpc">
+              <el-input v-model="form.qcResultSpc" readonly placeholder="请选择字典" >
+                <el-button slot="append" @click="handleSelectDict" icon="el-icon-search"></el-button>
+              </el-input>
+            </el-form-item>
+            <DictSelect ref="dictSelect" @onSelected="onDictSelected"></DictSelect>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="24">
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
@@ -179,10 +212,12 @@
 
 <script>
 import { listQcindex, getQcindex, delQcindex, addQcindex, updateQcindex } from "@/api/mes/qc/qcindex";
+import DictSelect from "@/components/DictSelect/index.vue";
 import {genCode} from "@/api/system/autocode/rule"
 export default {
   name: "Qcindex",
-  dicts: ['mes_index_type'],
+  dicts: ['mes_index_type','mes_qc_result_type'],
+  components: {DictSelect},
   data() {
     return {
       //自动生成编码
@@ -228,6 +263,22 @@ export default {
         indexType: [
           { required: true, message: "检测项类型不能为空", trigger: "change" }
         ],
+        qcResultType: [
+          { required: true, message: "请选择检测项值类型", trigger: "change" }
+        ],
+        qcResultSpc: [
+          { required: true, message: "请选择检测项值类型", trigger: "blur", 
+            validator: (rule, value, callback) => {
+              if (this.form.qcResultType === 'FILE' && !value) {
+                callback(new Error('文件类型不能为空'));
+              } else if (this.form.qcResultType === 'DICT' && !value) {
+                callback(new Error('字典项不能为空'));
+              } else {
+                callback();
+              }
+            }
+          }
+        ],
       }
     };
   },
@@ -257,6 +308,8 @@ export default {
         indexName: null,
         indexType: null,
         qcTool: null,
+        qcResultType: null,
+        qcResultSpc: null,
         remark: null,
         attr1: null,
         attr2: null,
@@ -350,6 +403,15 @@ export default {
       this.download('qc/qcindex/export', {
         ...this.queryParams
       }, `qcindex_${new Date().getTime()}.xlsx`)
+    },
+    //字典选择弹出框
+    handleSelectDict(){
+      this.$refs.dictSelect.showFlag = true;
+    },
+    //字典选择返回
+    onDictSelected(row){
+      debugger;
+      this.form.qcResultSpc=row.dictType;
     },
     //自动生成编码
     handleAutoGenChange(autoGenFlag){

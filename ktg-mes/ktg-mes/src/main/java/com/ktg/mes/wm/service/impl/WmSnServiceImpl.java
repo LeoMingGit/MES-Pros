@@ -49,6 +49,11 @@ public class WmSnServiceImpl implements IWmSnService
         return wmSnMapper.selectSnList(wmSn);
     }
 
+    @Override
+    public List<WmSn> getStationList(WmSn sn) {
+        return wmSnMapper.getStationList(sn);
+    }
+
     /**
      * 新增SN码
      * 

@@ -35,7 +35,7 @@
   
       <el-table v-loading="loading" :data="pendingList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="单据编码" align="center" prop="sourceDocCode" />        
+        <el-table-column label="来源单据编号" align="center" prop="sourceDocCode" />        
         <el-table-column label="检测项型" align="center" prop="qcType">
           <template slot-scope="scope">
             <dict-tag :options="dict.type.mes_qc_type" :value="scope.row.qcType"/>

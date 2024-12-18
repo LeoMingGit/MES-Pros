@@ -7,11 +7,14 @@ import com.ktg.common.core.controller.BaseController;
 import com.ktg.common.core.domain.AjaxResult;
 import com.ktg.common.core.page.TableDataInfo;
 import com.ktg.common.enums.BusinessType;
+import com.ktg.common.utils.StringUtils;
 import com.ktg.common.utils.poi.ExcelUtil;
 import com.ktg.mes.wm.domain.WmSn;
 import com.ktg.mes.wm.service.IWmSnService;
+import com.ktg.mes.wm.utils.WmBarCodeUtil;
 import com.ktg.system.strategy.AutoCodeUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,9 @@ public class WmSnMobController extends BaseController {
 
     @Autowired
     private AutoCodeUtil autoCodeUtil;
+
+    @Autowired
+    private WmBarCodeUtil wmBarCodeUtil;
 
     /**
      * 查询SN码列表
@@ -52,6 +58,24 @@ public class WmSnMobController extends BaseController {
         List<WmSn> list = wmSnService.selectSnList(wmSn);
         return getDataTable(list);
     }
+
+    @ApiOperation("根据生产工单和工作站查询所有SN流转记录")
+    @GetMapping("/getStationList")
+    public AjaxResult getStationList(WmSn sn){
+        if(!StringUtils.isNotNull(sn.getWorkorderId())){
+            return AjaxResult.error("请输入生产工单ID参数");
+        }
+
+        if(!StringUtils.isNotNull(sn.getWorkstationId())){
+            return AjaxResult.error("请输入工作站ID参数");
+        }
+
+        List<WmSn> snList = wmSnService.getStationList(sn);
+        return AjaxResult.success(snList);
+    }
+
+
+
 
     /**
      * 导出SN码列表
@@ -93,9 +117,10 @@ public class WmSnMobController extends BaseController {
                 SNCode = autoCodeUtil.genSerialCode(UserConstants.SN_CODE,wmSn.getItemCode());
                 wmSn.setSnCode(SNCode);
                 wmSnService.insertWmSn(wmSn);
+                wmBarCodeUtil.generateBarCode(UserConstants.BARCODE_TYPE_SN,wmSn.getSnId(),wmSn.getSnCode(),"");
             }
         }
-        return AjaxResult.success();
+        return AjaxResult.success(wmSn);
     }
 
     /**

@@ -25,6 +25,11 @@ public class WmItemRecptLine extends BaseEntity
     @Excel(name = "入库单ID")
     private Long recptId;
 
+    /**
+     * 到货通知单行ID
+     */
+    private Long noticeLineId;
+
     /** 产品物料ID */
     @Excel(name = "产品物料ID")
     private Long itemId;

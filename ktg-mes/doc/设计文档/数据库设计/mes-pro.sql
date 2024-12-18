@@ -269,7 +269,7 @@ create table pro_task (
   end_time                       datetime                                   comment '完成生产时间',
   color_code                     char(7)         default '#00AEF3'          comment '甘特图显示颜色',
   request_date                   datetime                                   comment '需求日期',
-  status                         varchar(64)     default 'NORMARL'          comment '生产状态',
+  status                         varchar(64)     default 'NORMAL'           comment '生产状态',
   remark                         varchar(500)    default ''                 comment '备注',
   attr1                          varchar(64)     default null               comment '预留字段1',
   attr2                          varchar(255)    default null               comment '预留字段2',
@@ -369,51 +369,6 @@ create table pro_task_issue (
   update_time                    datetime                                   comment '更新时间',
   primary key (record_id)
 ) engine=innodb auto_increment=200 comment = '生产任务投料表';
-
-
-
-
--- ----------------------------
--- 4、流转单表
--- ----------------------------
-drop table if exists pro_trans_order;
-create table pro_trans_order (
-  trans_order_id                 bigint(20)      not null auto_increment    comment '流转单ID',
-  trans_order_code               varchar(64)                                comment '流转单编号',
-  task_id                        bigint(20)      not null                   comment '生产任务ID',
-  task_code                      varchar(64)                                comment '生产任务编号',
-  workstation_id                 bigint(20)      not null                   comment '工作站ID',
-  workstation_code               varchar(64)                                comment '工作站编号',
-  workstation_name               varchar(255)                               comment '工作站名称', 
-  process_id                     bigint(20)                                 comment '工序ID',
-  process_code                   varchar(64)                                comment '工序编号',
-  process_name                   varchar(255)                               comment '工序名称',
-  workorder_id                   bigint(20)                                 comment '生产工单ID',
-  workorder_code                 varchar(64)                                comment '生产工单编号',
-  workorder_name                 varchar(255)                               comment '生产工单名称', 
-  batch_code                     varchar(64)                                comment '批次号',  
-  item_id                        bigint(20)                                 comment '产品物料ID',
-  item_code                      varchar(64)     not null                   comment '产品物料编码',
-  item_name                      varchar(255)    not null                   comment '产品物料名称',
-  specification                  varchar(500)    default null               comment '规格型号',
-  unit_of_measure                varchar(64)     not null                   comment '单位',
-  barcode_url                    varchar(255)                               comment '赋码地址',
-  quantity_transfered            double(12,2)                               comment '流转数量',  
-  produce_date                   datetime                                   comment '生产日期',
-  remark                         varchar(500)    default ''                 comment '备注',
-  attr1                          varchar(64)     default null               comment '预留字段1',
-  attr2                          varchar(255)    default null               comment '预留字段2',
-  attr3                          int(11)         default 0                  comment '预留字段3',
-  attr4                          int(11)         default 0                  comment '预留字段4',
-  create_by                      varchar(64)     default ''                 comment '创建者',
-  create_time 	                 datetime                                   comment '创建时间',
-  update_by                      varchar(64)     default ''                 comment '更新者',
-  update_time                    datetime                                   comment '更新时间',
-  primary key (trans_order_id)
-) engine=innodb auto_increment=200 comment = '流转单表';
-
-
-
 
 
 -- ----------------------------
@@ -568,5 +523,117 @@ create table pro_shutdown_record (
   update_time                    datetime                                   comment '更新时间',
   primary key (record_id)
 ) engine=innodb auto_increment=200 comment = '停机记录记录';
+
+
+-- ----------------------------
+-- 4、工序流转卡表
+-- ----------------------------
+drop table if exists pro_card;
+create table pro_card (
+  card_id                        bigint(20)      not null auto_increment    comment '流转卡ID',
+  card_code                      varchar(64)                                comment '流转卡编号',
+  workorder_id                   bigint(20)                                 comment '生产工单ID',
+  workorder_code                 varchar(64)                                comment '生产工单编号',
+  workorder_name                 varchar(255)                               comment '生产工单名称', 
+  batch_code                     varchar(64)                                comment '批次号',  
+  item_id                        bigint(20)                                 comment '产品物料ID',
+  item_code                      varchar(64)     not null                   comment '产品物料编码',
+  item_name                      varchar(255)    not null                   comment '产品物料名称',
+  specification                  varchar(500)    default null               comment '规格型号',
+  unit_of_measure                varchar(64)     not null                   comment '单位',
+  barcode_url                    varchar(255)                               comment '赋码地址',
+  quantity_transfered            double(12,2)                               comment '流转数量',  
+  status                         varchar(64)                                comment '流转卡状态',
+  remark                         varchar(500)    default ''                 comment '备注',
+  attr1                          varchar(64)     default null               comment '预留字段1',
+  attr2                          varchar(255)    default null               comment '预留字段2',
+  attr3                          int(11)         default 0                  comment '预留字段3',
+  attr4                          int(11)         default 0                  comment '预留字段4',
+  create_by                      varchar(64)     default ''                 comment '创建者',
+  create_time                    datetime                                   comment '创建时间',
+  update_by                      varchar(64)     default ''                 comment '更新者',
+  update_time                    datetime                                   comment '更新时间',
+  primary key (card_id)
+) engine=innodb auto_increment=200 comment = '流转卡表';
+
+
+
+-- ----------------------------
+-- 4、工序流转卡-工序信息表
+-- ----------------------------
+drop table if exists pro_card_process;
+create table pro_card_process (
+  record_id                      bigint(20)      not null auto_increment    comment '流水ID',
+  card_id                        bigint(20)      not null                   comment '流转卡ID',
+  card_code                      varchar(64)                                comment '流转卡编号',
+  seq_num                        int(11)         default 1                  comment '序号',
+  process_id                     bigint(20)                                 comment '工序ID',
+  process_code                   varchar(64)                                comment '工序编号',
+  process_name                   varchar(255)                               comment '工序名称',
+  input_time                     datetime                                   comment '进入工序时间',
+  output_time                    datetime                                   comment '出工序时间',
+  quantity_input                 double(12,2)                               comment '投入数量',
+  quantity_output                double(12,2)                               comment '产出数量',
+  quantity_unquanlify            double(12,2)                               comment '不合格品数量',
+  workstation_id                 bigint(20)      not null                   comment '工作站ID',
+  workstation_code               varchar(64)                                comment '工作站编号',
+  workstation_name               varchar(125)                               comment '工作站名称', 
+  user_id                        bigint(20)      not null                   comment '用户ID',
+  user_name                      varchar(64)                                comment '用户名',
+  nick_name                      varchar(125)                               comment '名称',  
+  ipqc_id                        bigint(20)                                 comment '过程检验单ID',
+  remark                         varchar(500)    default ''                 comment '备注',
+  attr1                          varchar(64)     default null               comment '预留字段1',
+  attr2                          varchar(255)    default null               comment '预留字段2',
+  attr3                          int(11)         default 0                  comment '预留字段3',
+  attr4                          int(11)         default 0                  comment '预留字段4',
+  create_by                      varchar(64)     default ''                 comment '创建者',
+  create_time                    datetime                                   comment '创建时间',
+  update_by                      varchar(64)     default ''                 comment '更新者',
+  update_time                    datetime                                   comment '更新时间',
+  primary key (record_id)
+) engine=innodb auto_increment=200 comment = '工序流转卡-工序信息表';
+
+
+
+-- ----------------------------
+-- 4、SN流转-工序信息表
+-- ----------------------------
+drop table if exists pro_sn_process;
+create table pro_sn_process (
+  record_id                      bigint(20)      not null auto_increment    comment '流水ID',
+  sn_id                          bigint(20)      not null                   comment 'SNID',
+  sn_code                        varchar(64)                                comment 'SN编号',
+  seq_num                        int(11)         default 1                  comment '序号',
+  process_id                     bigint(20)                                 comment '工序ID',
+  process_code                   varchar(64)                                comment '工序编号',
+  process_name                   varchar(255)                               comment '工序名称',
+  input_time                     datetime                                   comment '进入工序时间',
+  output_time                    datetime                                   comment '出工序时间',
+  quantity_input                 double(12,2)                               comment '投入数量',
+  quantity_output                double(12,2)                               comment '产出数量',
+  quantity_unquanlify            double(12,2)                               comment '不合格品数量',
+  workstation_id                 bigint(20)      not null                   comment '工作站ID',
+  workstation_code               varchar(64)                                comment '工作站编号',
+  workstation_name               varchar(125)                               comment '工作站名称', 
+  user_id                        bigint(20)      not null                   comment '用户ID',
+  user_name                      varchar(64)                                comment '用户名',
+  nick_name                      varchar(125)                               comment '名称',  
+  ipqc_id                        bigint(20)                                 comment '过程检验单ID',
+  remark                         varchar(500)    default ''                 comment '备注',
+  attr1                          varchar(64)     default null               comment '预留字段1',
+  attr2                          varchar(255)    default null               comment '预留字段2',
+  attr3                          int(11)         default 0                  comment '预留字段3',
+  attr4                          int(11)         default 0                  comment '预留字段4',
+  create_by                      varchar(64)     default ''                 comment '创建者',
+  create_time                    datetime                                   comment '创建时间',
+  update_by                      varchar(64)     default ''                 comment '更新者',
+  update_time                    datetime                                   comment '更新时间',
+  primary key (record_id)
+) engine=innodb auto_increment=200 comment = 'SN流转-工序信息表';
+
+
+
+
 
 

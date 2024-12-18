@@ -113,6 +113,16 @@
           v-hasPermi="['mes:md:vendor:export']"
         >导出</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="info"
+          plain
+          icon="el-icon-upload2"
+          size="mini"
+          @click="handleImport"
+          v-hasPermi="['mes:md:vendor:import']"
+        >导入</el-button>
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -174,38 +184,56 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-row>
-          <el-col :span="8">
-            <el-form-item label="供应商编码" prop="vendorCode">
-              <el-input v-model="form.vendorCode" placeholder="请输入供应商编码" />
-            </el-form-item>
+          <el-col :span="14">
+            <el-row>
+              <el-col :span="20">
+                <el-form-item label="供应商编码" prop="vendorCode">
+                  <el-input v-model="form.vendorCode" placeholder="请输入供应商编码" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                      active-color="#13ce66"
+                      active-text="自动生成"
+                      @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="供应商名称" prop="vendorName">
+                  <el-input v-model="form.vendorName" placeholder="请输入供应商名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="供应商简称" prop="vendorNick">
+                  <el-input v-model="form.vendorNick" placeholder="请输入供应商简称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="供应商英文名称" prop="vendorEn">
+                  <el-input v-model="form.vendorEn" placeholder="请输入供应商英文名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
-          <el-col :span="4">
-            <el-form-item  label-width="80">
-              <el-switch v-model="autoGenFlag"
-                  active-color="#13ce66"
-                  active-text="自动生成"
-                  @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view'">               
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="供应商名称" prop="vendorName">
-              <el-input v-model="form.vendorName" placeholder="请输入供应商名称" />
-            </el-form-item>
-          </el-col>
+          <el-col :span="10">
+            <div class="flex-container">
+              <el-image class="barcodeClass" fit="scale-down" :src="form.barcodeUrl">
+                <div slot="error" class="image-slot">
+                  <i class="el-icon-picture-outline"></i>
+                </div>
+              </el-image>
+            </div>            
+          </el-col>          
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="供应商简称" prop="vendorNick">
-              <el-input v-model="form.vendorNick" placeholder="请输入供应商简称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="供应商英文名称" prop="vendorEn">
-              <el-input v-model="form.vendorEn" placeholder="请输入供应商英文名称" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+      
         <el-row>
           <el-col :span="24">
             <el-form-item label="供应商简介" prop="vendorDes">
@@ -334,11 +362,44 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 供应商导入对话框 -->
+    <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
+      <el-upload
+        ref="upload"
+        :limit="1"
+        accept=".xlsx, .xls"
+        :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress"
+        :on-success="handleFileSuccess"
+        :auto-upload="false"
+        drag
+      >
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip text-center" slot="tip">
+          <div class="el-upload__tip" slot="tip">
+            <el-checkbox v-model="upload.updateSupport" /> 是否更新已经存在的数据
+          </div>
+          <span>仅允许导入xls、xlsx格式文件。</span>
+          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;" @click="importTemplate">下载模板</el-link>
+        </div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确 定</el-button>
+        <el-button @click="upload.open = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { listVendor, getVendor, delVendor, addVendor, updateVendor } from "@/api/mes/md/vendor";
+import { getBarcodeUrl } from "@/api/mes/wm/barcode";
+import { getToken } from "@/utils/auth";
 import {genCode} from "@/api/system/autocode/rule"
 export default {
   name: "Vendor",
@@ -366,6 +427,21 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 数据导入参数
+      upload: {
+        // 是否显示弹出层
+        open: false,
+        // 弹出层标题
+        title: "",
+        // 是否禁用上传
+        isUploading: false,
+        // 是否更新已经存在的用户数据
+        updateSupport: 0,
+        // 设置上传的请求头部
+        headers: { Authorization: "Bearer " + getToken() },
+        // 上传的地址
+        url: process.env.VUE_APP_BASE_API + "/mes/md/vendor/importData"
+      },
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -390,6 +466,13 @@ export default {
         contact2Email: null,
         creditCode: null,
         enableFlag: null,
+      },
+      //二维码查询参数
+      barcodeParams: {
+        bussinessId: null,
+        bussinessCode: null,
+        barcodeFormart: 'QR_CODE', //模式二维码
+        barcodeType: 'VENDOR' //类型为供应商
       },
       // 表单参数
       form: {},
@@ -450,6 +533,7 @@ export default {
         creditCode: null,
         enableFlag: 'Y',
         remark: null,
+        barcodeUrl: null,
         attr1: null,
         attr2: null,
         attr3: null,
@@ -487,6 +571,7 @@ export default {
     },
     // 查询明细按钮操作
     handleView(row){
+      debugger;
       this.reset();
       const vendorId = row.vendorId || this.ids
       getVendor(vendorId).then(response => {
@@ -494,6 +579,7 @@ export default {
         this.open = true;
         this.title = "查看供应商";
         this.optType = "view";
+        this.getBarcodeUrl();
       });
     },
     /** 修改按钮操作 */
@@ -505,10 +591,12 @@ export default {
         this.open = true;
         this.title = "修改供应商";
         this.optType = "edit";
+        this.getBarcodeUrl();
       });
     },
     /** 提交按钮 */
     submitForm() {
+      debugger;
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.vendorId != null) {
@@ -539,9 +627,51 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('md/vendor/export', {
+      this.download('/mes/md/vendor/export', {
         ...this.queryParams
       }, `vendor_${new Date().getTime()}.xlsx`)
+    },
+    /** 导入按钮操作 */
+    handleImport() {
+      this.upload.title = "供应商导入";
+      this.upload.open = true;
+    },
+    /**下载导入模板 */
+    exportTemplate() {
+      this.download('mes/md/vendor/exportTemplate', {
+      }, `vendor_template_${new Date().getTime()}.xlsx`)
+    },
+    /** 下载模板操作 */
+    importTemplate() {
+      this.download('mes/md/vendor/importTemplate', {
+      }, `vendor_template_${new Date().getTime()}.xlsx`)
+    },
+    // 文件上传中处理
+    handleFileUploadProgress(event, file, fileList) {
+      this.upload.isUploading = true;
+    },
+    // 文件上传成功处理
+    handleFileSuccess(response, file, fileList) {
+      this.upload.open = false;
+      this.upload.isUploading = false;
+      this.$refs.upload.clearFiles();
+      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+      this.getList();
+    },
+    // 提交上传文件
+    submitFileForm() {
+      this.$refs.upload.submit();
+    },
+
+    //获取某个供应商的二维码地址
+    getBarcodeUrl(){
+      this.barcodeParams.bussinessId = this.form.vendorId;
+      this.barcodeParams.bussinessCode = this.form.vendorCode;
+      getBarcodeUrl(this.barcodeParams).then( response =>{          
+        if(response.data != null){
+          this.$set(this.form,'barcodeUrl',response.data.barcodeUrl);//强制刷新DOM
+        }        
+      });
     },
     //自动生成编码
     handleAutoGenChange(autoGenFlag){
@@ -557,3 +687,18 @@ export default {
   }
 };
 </script>
+<style scoped>
+  .barcodeClass {
+    width: 200px;
+    height: 200px;
+    border: 1px dashed;
+    position: relative;
+    display: inline-block;
+  }
+
+  .flex-container{
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+  }
+</style>

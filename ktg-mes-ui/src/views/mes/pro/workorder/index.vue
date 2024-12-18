@@ -69,10 +69,10 @@
       </el-form-item>
       <el-form-item label="需求日期" prop="requestDate">
         <el-date-picker clearable
-          v-model="queryParams.requestDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择需求日期">
+                        v-model="queryParams.requestDate"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择需求日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -81,7 +81,7 @@
       </el-form-item>
     </el-form>
 
-<el-row :gutter="10" class="mb8">
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           type="primary"
@@ -160,9 +160,9 @@
       <el-table-column label="产品名称" width="200" align="center" prop="productName" :show-overflow-tooltip="true"/>
       <el-table-column label="规格型号" align="center" prop="productSpc" :show-overflow-tooltip="true"/>
       <el-table-column label="单位" align="center" prop="unitOfMeasure" />
-      <el-table-column label="工单数量" align="center" prop="quantity" />                 
+      <el-table-column label="工单数量" align="center" prop="quantity" />
       <el-table-column label="调整数量" align="center" prop="quantityChanged" />
-      <el-table-column label="已生产数量" align="center" width="100px" prop="quantityProduced" /> 
+      <el-table-column label="已生产数量" align="center" width="100px" prop="quantityProduced" />
       <el-table-column label="批次号" align="center" width="100px" prop="batchCode" />
       <el-table-column label="客户编码" align="center" prop="clientCode" />
       <el-table-column label="客户名称" align="center" prop="clientName" :show-overflow-tooltip="true"/>
@@ -176,7 +176,7 @@
           <dict-tag :options="dict.type.mes_order_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="150px" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" width="250px" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -210,6 +210,12 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['mes:pro:workorder:remove']"
           >删除</el-button>
+          <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-printer"
+              @click="handlePreview(scope.row)"
+          >预览</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -225,77 +231,76 @@
     <el-dialog :title="title" :visible.sync="open" width="960px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-row>
+          <el-col :span="16">
+            <el-row>
+              <el-col :span="16">
+                <el-form-item label="工单编号" prop="workorderCode">
+                  <el-input v-model="form.workorderCode" placeholder="请输入工单编号" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item  label-width="80">
+                  <el-switch v-model="autoGenFlag"
+                             active-color="#13ce66"
+                             active-text="自动生成"
+                             @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view' && form.status =='PREPARE'">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="工单名称" prop="workorderName">
+                  <el-input v-model="form.workorderName" placeholder="请输入工单名称" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="来源类型" prop="orderSource">
+                  <el-radio-group v-model="form.orderSource" disabled v-if="optType=='view'">
+                    <el-radio
+                      v-for="dict in dict.type.mes_workorder_sourcetype"
+                      :key="dict.value"
+                      :label="dict.value"
+                    >{{dict.label}}</el-radio>
+                  </el-radio-group>
+                  <el-radio-group v-model="form.orderSource" v-else>
+                    <el-radio
+                      v-for="dict in dict.type.mes_workorder_sourcetype"
+                      :key="dict.value"
+                      :label="dict.value"
+                    >{{dict.label}}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12" v-if="form.orderSource == 'ORDER'">
+                <el-form-item label="订单编号" prop="sourceCode">
+                  <el-input v-model="form.sourceCode" placeholder="请输入订单编号" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="工单类型" prop="workorderType">
+                  <el-select v-model="form.workorderType" placeholder="请选择类型">
+                    <el-option
+                      v-for="dict in dict.type.mes_workorder_type"
+                      :key="dict.value"
+                      :label="dict.label"
+                      :value="dict.value"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-col>
           <el-col :span="8">
-            <el-form-item label="工单编号" prop="workorderCode">
-              <el-input v-model="form.workorderCode" placeholder="请输入工单编号" />
-            </el-form-item>
+            <BarcodeImg ref="barcodeImg" :bussinessId="form.workorderId" :bussinessCode="form.workorderCode" barcodeType="WORKORDER"></BarcodeImg>
           </el-col>
-          <el-col :span="4">
-            <el-form-item  label-width="80">
-              <el-switch v-model="autoGenFlag"
-                  active-color="#13ce66"
-                  active-text="自动生成"
-                  @change="handleAutoGenChange(autoGenFlag)" v-if="optType != 'view' && form.status =='PREPARE'">               
-              </el-switch>
-            </el-form-item>
-          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
-            <el-form-item label="工单名称" prop="workorderName">
-              <el-input v-model="form.workorderName" placeholder="请输入工单名称" />
-            </el-form-item>
-          </el-col>          
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="来源类型" prop="orderSource">              
-              <el-radio-group v-model="form.orderSource" disabled v-if="optType=='view'">
-                <el-radio
-                  v-for="dict in dict.type.mes_workorder_sourcetype"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
-              <el-radio-group v-model="form.orderSource" v-else>
-                <el-radio
-                  v-for="dict in dict.type.mes_workorder_sourcetype"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>                    
-          <el-col :span="8" v-if="form.orderSource == 'ORDER'">
-            <el-form-item label="订单编号" prop="sourceCode">
-              <el-input v-model="form.sourceCode" placeholder="请输入订单编号" />
-            </el-form-item>
-          </el-col>         
-          <el-col :span="8">
-            <el-form-item label="单据状态" prop="status">
-              <el-select v-model="form.status" disabled placeholder="请选择单据状态">
-                <el-option
-                  v-for="dict in dict.type.mes_order_status"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col> 
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="工单类型" prop="workorderType">
-              <el-select v-model="form.workorderType" placeholder="请选择类型">
-                <el-option
-                  v-for="dict in dict.type.mes_workorder_type"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
             <el-form-item label="产品编号" prop="productCode">
               <el-input v-model="form.productCode" placeholder="请选择产品" >
                 <el-button slot="append" @click="handleSelectProduct" icon="el-icon-search"></el-button>
@@ -303,11 +308,11 @@
               <ItemSelect ref="itemSelect" @onSelected="onItemSelected" > </ItemSelect>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <el-form-item label="产品名称" prop="productName">
               <el-input v-model="form.productName" placeholder="请选择产品" disabled/>
             </el-form-item>
-          </el-col>          
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
@@ -319,7 +324,7 @@
             <el-form-item label="单位" prop="unitOfMeasure">
               <el-input v-model="form.unitOfMeasure" placeholder="请选择产品" disabled/>
             </el-form-item>
-          </el-col>          
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="8">
@@ -330,18 +335,18 @@
           <el-col :span="8">
             <el-form-item label="需求日期" prop="requestDate">
               <el-date-picker clearable
-                v-model="form.requestDate"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择需求日期">
+                              v-model="form.requestDate"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="请选择需求日期">
               </el-date-picker>
             </el-form-item>
-          </el-col>     
+          </el-col>
           <el-col :span="8">
             <el-form-item label="批次号" prop="batchCode">
               <el-input v-model="form.batchCode" placeholder="请输入批次号" />
             </el-form-item>
-          </el-col>     
+          </el-col>
         </el-row>
         <el-row v-if="form.orderSource == 'ORDER'">
           <el-col :span="12">
@@ -388,12 +393,12 @@
           </el-col>
         </el-row>
       </el-form>
-      <el-tabs type="border-card" v-if="form.workorderId != null">        
-        <el-tab-pane label="BOM组成"> 
-          <Workorderbom ref="bomlist" :optType="optType" :workorder="form" @handleAddSub="handleSubAdd" ></Workorderbom>        
+      <el-tabs type="border-card" v-if="form.workorderId != null">
+        <el-tab-pane label="BOM组成">
+          <Workorderbom ref="bomlist" :optType="optType" :workorder="form" @handleAddSub="handleSubAdd" ></Workorderbom>
         </el-tab-pane>
         <el-tab-pane label="物料需求">
-         
+
         </el-tab-pane>
       </el-tabs>
       <div slot="footer" class="dialog-footer">
@@ -415,6 +420,7 @@ import ClientSelect from "@/components/clientSelect/single.vue";
 import VendorSelect from "@/components/vendorSelect/single.vue";
 import {genCode} from "@/api/system/autocode/rule"
 import Treeselect from "@riophae/vue-treeselect";
+import BarcodeImg from "@/components/barcodeImg/index.vue"
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
@@ -426,7 +432,8 @@ export default {
     ClientSelect,
     VendorSelect,
     Workorderbom,
-    WorkorderItemList
+    WorkorderItemList,
+    BarcodeImg
   },
   data() {
     return {
@@ -534,12 +541,12 @@ export default {
         children: node.children
       };
     },
-	/** 查询生产工单下拉树结构 */
+    /** 查询生产工单下拉树结构 */
     getTreeselect() {
       listWorkorder().then(response => {
         this.workorderOptions = [];
         const data = { workorderId: 0, workorderName: '顶级节点', children: [] };
-        data.children = this.handleTree(response.data, "workorderId", "parentId");
+        data.children = this.handleTree(response.rows, "workorderId", "parentId");
         this.workorderOptions.push(data);
       });
     },
@@ -634,8 +641,13 @@ export default {
       this.getTreeselect();
       const workorderId = row.workorderId || this.ids;
       getWorkorder(workorderId).then(response => {
-        this.form = response.data;
+        this.form = response.data
         this.open = true;
+        this.$nextTick(() => {
+          console.log("2232",this.$refs.barcodeImg)
+          this.$refs.barcodeImg.getBarcode();
+
+        })
         this.title = "查看工单信息";
         this.optType = "view";
       });
@@ -649,6 +661,10 @@ export default {
       }
       getWorkorder(row.workorderId).then(response => {
         this.form = response.data;
+
+        console.log("3232",this.form)
+        this.form.workorderCode = response.data.workorderCode
+        this.form.workorderId = response.data.workorderId
         this.open = true;
         this.title = "修改生产工单";
         this.optType="edit";
@@ -675,6 +691,10 @@ export default {
           }
         }
       });
+    },
+    handlePreview(row){
+      //todo:本地环境报表地址
+      window.open(process.env.VUE_APP_REPORT+"/ureport/preview?_u=mysql:生产工单打印模版.ureport.xml&id="+row.workorderId+"&code="+row.workorderCode)
     },
     /** 删除按钮操作 */
     handleDelete(row) {
@@ -715,21 +735,21 @@ export default {
     },
     //物料选择弹出框
     onItemSelected(obj){
-        if(obj != undefined && obj != null){
-          this.form.productId = obj.itemId;
-          this.form.productCode = obj.itemCode;
-          this.form.productName = obj.itemName;
-          this.form.productSpc = obj.specification;
-          this.form.unitOfMeasure = obj.unitOfMeasure;  
-        }
+      if(obj != undefined && obj != null){
+        this.form.productId = obj.itemId;
+        this.form.productCode = obj.itemCode;
+        this.form.productName = obj.itemName;
+        this.form.productSpc = obj.specification;
+        this.form.unitOfMeasure = obj.unitName;
+      }
     },
     //客户选择弹出框
     onClientSelected(obj){
-        if(obj != undefined && obj != null){
-          this.form.clientId = obj.clientId;
-          this.form.clientCode = obj.clientCode;
-          this.form.clientName = obj.clientName;
-        }
+      if(obj != undefined && obj != null){
+        this.form.clientId = obj.clientId;
+        this.form.clientCode = obj.clientCode;
+        this.form.clientName = obj.clientName;
+      }
     },
     //供应商选择
     handleSelectVendor(){
@@ -737,12 +757,12 @@ export default {
     },
     //供应商选择弹出框
     onVendorSelected(obj){
-        debugger;
-        if(obj != undefined && obj != null){
-          this.form.vendorId = obj.vendorId;
-          this.form.vendorCode = obj.vendorCode;
-          this.form.vendorName = obj.vendorName;
-        }
+      debugger;
+      if(obj != undefined && obj != null){
+        this.form.vendorId = obj.vendorId;
+        this.form.vendorCode = obj.vendorCode;
+        this.form.vendorName = obj.vendorName;
+      }
     },
     //自动生成编码
     handleAutoGenChange(autoGenFlag){

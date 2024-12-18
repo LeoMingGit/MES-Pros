@@ -100,6 +100,8 @@ create table wm_transaction (
   area_id               bigint(20)                                  comment '库位ID',
   area_code             varchar(64)                                 comment '库位编码',
   area_name             varchar(255)                                comment '库位名称', 
+  pakcage_id            bigint(20)                                  comment '容器ID',
+  package_code          varchar(64)                                 comment '容器编号',
   vendor_id             bigint(20)                                  comment '供应商ID',
   vendor_code           varchar(64)                                 comment '供应商编号',
   vendor_name           varchar(255)                                comment '供应商名称',
@@ -143,7 +145,17 @@ create table wm_material_stock (
   item_name             varchar(255)                                comment '产品物料名称',
   specification         varchar(500)                                comment '规格型号',
   unit_of_measure       varchar(64)                                 comment '单位',   
-  batch_code            varchar(255)                                comment '入库批次号',
+  batch_code            varchar(255)                                comment '批次号',
+  workorder_id          bigint(20)                                  comment '生产工单ID',
+  workorder_code        varchar(64)                                 comment '生产工单编号',
+  vendor_id             bigint(20)                                  comment '供应商ID',
+  vendor_code           varchar(64)                                 comment '供应商编号',
+  vendor_name           varchar(255)                                comment '供应商名称',
+  vendor_nick           varchar(64)                                 comment '供应商简称',
+  client_id             bigint(20)                                  comment '客户ID',
+  client_code           varchar(64)                                 comment '客户编码',
+  client_name           varchar(255)                                comment '客户名称',
+  client_nick           varchar(255)                                comment '客户简称',
   warehouse_id          bigint(20)      not null                    comment '仓库ID',
   warehouse_code        varchar(64)                                 comment '仓库编码',
   warehouse_name        varchar(255)                                comment '仓库名称',
@@ -153,15 +165,14 @@ create table wm_material_stock (
   area_id               bigint(20)                                  comment '库位ID',
   area_code             varchar(64)                                 comment '库位编码',
   area_name             varchar(255)                                comment '库位名称', 
-  vendor_id             bigint(20)                                  comment '供应商ID',
-  vendor_code           varchar(64)                                 comment '供应商编号',
-  vendor_name           varchar(255)                                comment '供应商名称',
-  vendor_nick           varchar(64)                                 comment '供应商简称',
+  package_id            bigint(20)                                  comment '容器ID',
+  package_code          varchar(64)                                 comment '容器编号',
   quantity_onhand       double(12,2)                                comment '在库数量',
-  workorder_id          bigint(20)                                  comment '生产工单ID',
-  workorder_code        varchar(64)                                 comment '生产工单编号',
+  quantity_reserved     double(12,2)                                comment '保留数量',
+  production_date       datetime                                    comment '生产日期',
   recpt_date            datetime                                    comment '入库时间',
   expire_date           datetime                                    comment '库存有效期',
+  frozen_flag           char(1)         default 'N' not null        comment '是否冻结',
   attr1                 varchar(64)     default null                comment '预留字段1',
   attr2                 varchar(255)    default null                comment '预留字段2',
   attr3                 int(11)         default 0                   comment '预留字段3',
@@ -172,6 +183,66 @@ create table wm_material_stock (
   update_time           datetime                                    comment '更新时间',
   primary key (material_stock_id)
 ) engine=innodb auto_increment=200 comment = '库存记录表';
+
+
+-- ----------------------------
+-- 6、到货通知单
+-- ----------------------------
+drop table if exists wm_arrival_notice;
+create table wm_arrival_notice (
+  notice_id             bigint(20)      not null auto_increment     comment '通知单ID',
+  notice_code           varchar(64)     not null                    comment '通知单编号',
+  notice_name           varchar(255)    not null                    comment '通知单名称', 
+  po_code               varchar(64)                                 comment '采购订单编号',  
+  vendor_id             bigint(20)                                  comment '供应商ID',
+  vendor_code           varchar(64)                                 comment '供应商编码',
+  vendor_name           varchar(255)                                comment '供应商名称',
+  vendor_nick           varchar(255)                                comment '供应商简称',
+  arrival_date          datetime                                    comment '到货日期',
+  contact               varchar(64)                                 comment '联系人',
+  tel                   varchar(128)                                comment '联系方式',
+  status                varchar(64)     default 'PREPARE'           comment '单据状态',  
+  remark                varchar(500)    default ''                  comment '备注',
+  attr1                 varchar(64)     default null                comment '预留字段1',
+  attr2                 varchar(255)    default null                comment '预留字段2',
+  attr3                 int(11)         default 0                   comment '预留字段3',
+  attr4                 int(11)         default 0                   comment '预留字段4',
+  create_by             varchar(64)     default ''                  comment '创建者',
+  create_time           datetime                                    comment '创建时间',
+  update_by             varchar(64)     default ''                  comment '更新者',
+  update_time           datetime                                    comment '更新时间',
+  primary key (notice_id)
+) engine=innodb auto_increment=200 comment = '到货通知单表';
+
+
+-- ----------------------------
+-- 7、到货通知单行表
+-- ----------------------------
+drop table if exists wm_arrival_notice_line;
+create table wm_arrival_notice_line (
+  line_id               bigint(20)      not null auto_increment     comment '行ID',
+  notice_id             bigint(20)                                  comment '通知单ID',
+  item_id               bigint(20)      not null                    comment '产品物料ID',
+  item_code             varchar(64)                                 comment '产品物料编码',
+  item_name             varchar(255)                                comment '产品物料名称',
+  specification         varchar(500)                                comment '规格型号',
+  unit_of_measure       varchar(64)                                 comment '单位',
+  quantity_arrival      double(12,2)    not null                    comment '到货数量',
+  quantity_quanlified   double(12,2)                                comment '合格数量',
+  iqc_check             char(1)                                     comment '是否来料检验',
+  iqc_id                bigint(20)                                  comment '来料检验单ID',
+  iqc_code              varchar(64)                                 comment '来料检验单编号',                 
+  remark                varchar(500)    default ''                  comment '备注',
+  attr1                 varchar(64)     default null                comment '预留字段1',
+  attr2                 varchar(255)    default null                comment '预留字段2',
+  attr3                 int(11)         default 0                   comment '预留字段3',
+  attr4                 int(11)         default 0                   comment '预留字段4',
+  create_by             varchar(64)     default ''                  comment '创建者',
+  create_time           datetime                                    comment '创建时间',
+  update_by             varchar(64)     default ''                  comment '更新者',
+  update_time           datetime                                    comment '更新时间',
+  primary key (line_id)
+) engine=innodb auto_increment=200 comment = '到货通知单行表';
 
 
 
@@ -185,6 +256,8 @@ create table wm_item_recpt (
   recpt_name            varchar(255)    not null                    comment '入库单名称',
   iqc_id                bigint(20)                                  comment '来料检验单ID',
   iqc_code              varchar(64)                                 comment '来料检验单编号',  
+  notice_id             bigint(20)                                  comment '到货通知单ID',
+  notice_code           varchar(64)                                 comment '到货通知单编号',
   po_code               varchar(64)                                 comment '采购订单编号',  
   vendor_id             bigint(20)                                  comment '供应商ID',
   vendor_code           varchar(64)                                 comment '供应商编码',
@@ -221,6 +294,7 @@ drop table if exists wm_item_recpt_line;
 create table wm_item_recpt_line (
   line_id               bigint(20)      not null auto_increment     comment '行ID',
   recpt_id              bigint(20)                                  comment '入库单ID',
+  notice_line_id        bigint(20)                                  comment '到货通知单行ID',
   item_id               bigint(20)      not null                    comment '产品物料ID',
   item_code             varchar(64)                                 comment '产品物料编码',
   item_name             varchar(255)                                comment '产品物料名称',
@@ -1109,6 +1183,8 @@ create table wm_sn (
   specification         varchar(500)                                comment '规格型号',
   unit_of_measure       varchar(64)                                 comment '单位',
   batch_code            varchar(255)                                comment '批次号',
+  gen_date              datetime                                    comment '生成时间',
+  workorder_id          bigint(20)                                  comment '生产工单ID',
   remark                varchar(500)    default ''                  comment '备注',
   attr1                 varchar(64)     default null                comment '预留字段1',
   attr2                 varchar(255)    default null                comment '预留字段2',
@@ -1376,5 +1452,57 @@ create table wm_outsource_recpt_line (
   update_time           datetime                                    comment '更新时间',
   primary key (line_id)
 ) engine=innodb auto_increment=200 comment = '外协入库单行表';
+
+
+-- ----------------------------
+-- 31、批次记录表
+-- ----------------------------
+drop table if exists wm_batch;
+create table wm_batch (
+  batch_id              bigint(20)      not null auto_increment     comment '批次ID',
+  batch_code            varchar(64)     not null                    comment '批次编号',
+  item_id               bigint(20)      not null                    comment '产品物料ID',
+  item_code             varchar(64)                                 comment '产品物料编码',
+  item_name             varchar(255)                                comment '产品物料名称',
+  specification         varchar(500)                                comment '规格型号',
+  unit_of_measure       varchar(64)                                 comment '单位',
+  produce_date          datetime                                    comment '生产日期',
+  expire_date           datetime                                    comment '有效期',
+  recpt_date            datetime                                    comment '入库日期',
+  vendor_id             bigint(20)                                  comment '供应商ID',
+  vendor_code           varchar(64)                                 comment '供应商编码',
+  vendor_name           varchar(255)                                comment '供应商名称',
+  vendor_nick           varchar(255)                                comment '供应商简称',
+  client_id             bigint(20)                                  comment '客户ID',
+  client_code           varchar(64)                                 comment '客户编码',
+  client_name           varchar(255)                                comment '客户名称',
+  client_nick           varchar(255)                                comment '客户简称',
+  co_code               varchar(64)                                 comment '销售订单编号',
+  po_code               varchar(64)                                 comment '采购订单编号',
+  workorder_id          bigint(20)                                  comment '生产工单ID',
+  workorder_code        varchar(64)                                 comment '生产工单编码',  
+  task_id               bigint(20)                                  comment '生产任务ID',
+  task_code             varchar(64)                                 comment '生产任务编号',
+  workstation_id        bigint(20)                                  comment '工作站ID',
+  workstation_code        varchar(64)                               comment '工作站编码',
+  tool_id               bigint(20)                                  comment '工具ID',
+  tool_code             varchar(64)                                 comment '工具编号',
+  mold_id               bigint(20)                                  comment '模具ID',
+  mold_code             varchar(64)                                 comment '模具编号',
+  product_code          varchar(128)                                comment '生产批号',
+  quality_status        varchar(64)                                 comment '质量状态',
+  remark                varchar(500)    default ''                  comment '备注',
+  attr1                 varchar(64)     default null                comment '预留字段1',
+  attr2                 varchar(255)    default null                comment '预留字段2',
+  attr3                 int(11)         default 0                   comment '预留字段3',
+  attr4                 int(11)         default 0                   comment '预留字段4',
+  create_by             varchar(64)     default ''                  comment '创建者',
+  create_time           datetime                                    comment '创建时间',
+  update_by             varchar(64)     default ''                  comment '更新者',
+  update_time           datetime                                    comment '更新时间',
+  primary key (batch_id)
+) engine=innodb auto_increment=200 comment = '批次记录表';
+
+
 
 

@@ -36,17 +36,6 @@
       <el-table-column label="仓库" align="center" prop="warehouseName" />
       <el-table-column label="库区" align="center" prop="locationName" />
       <el-table-column label="库位" align="center" prop="areaName" />
-      <el-table-column label="有效期" align="center" prop="expireDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.expireDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否检验" align="center" prop="iqcCheck">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_yes_no" :value="scope.row.iqcCheck"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="检验单编号" width="120" align="center" prop="iqcCode" />
       <el-table-column label="操作" align="center" width="100px" v-if="optType != 'view'" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -82,10 +71,12 @@
           <el-col :span="8">
             <el-form-item label="物料编码"  prop="itemCode">
               <el-input v-model="form.itemCode" readonly="readonly" placeholder="请选择物料编码" >
-                <el-button slot="append" @click="handleSelectProduct" icon="el-icon-search"></el-button>
+                <el-button v-if="noticeId !=null" slot="append" @click="handleSelectNoticeLine" icon="el-icon-search"></el-button>
+                <el-button v-else slot="append" @click="handleSelectProduct" icon="el-icon-search"></el-button>
               </el-input>
             </el-form-item>
-            <ItemSelect ref="itemSelect" @onSelected="onItemSelected" > </ItemSelect>
+            <NoticeLineSelect v-if="noticeId !=null" ref="noticeLineSelect" :noticeId="noticeId" @onSelected="onNoticeLineSelectd"></NoticeLineSelect>
+            <ItemSelect v-else ref="itemSelect" @onSelected="onItemSelected" > </ItemSelect>
           </el-col>
           <el-col :span="8">
             <el-form-item label="物料名称" prop="itemName">
@@ -105,8 +96,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="入库批次号" prop="batchCode">
-              <el-input v-model="form.batchCode" placeholder="请输入入库批次号" />
+            <el-form-item label="入库仓库" prop="warehouseId">
+              <el-cascader v-model="warehouseInfo"
+                :options="warehouseOptions"
+                :props="warehouseProps"
+                @change="handleWarehouseChanged"
+              >                  
+              </el-cascader>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -122,41 +118,12 @@
         </el-row>
         <el-row>
           <el-col :span="8">
-            <el-form-item label="入库仓库" prop="warehouseId">
-              <el-cascader v-model="warehouseInfo"
-                :options="warehouseOptions"
-                :props="warehouseProps"
-                @change="handleWarehouseChanged"
-              >                  
-              </el-cascader>
+            <el-form-item label="入库批次号" prop="batchCode">
+              <el-input v-model="form.batchCode" placeholder="请输入入库批次号" />
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="是否检验">
-              <el-radio-group v-model="form.iqcCheck" disabled v-if="optType=='view'">
-                <el-radio
-                  v-for="dict in dict.type.sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
 
-              <el-radio-group v-model="form.iqcCheck" v-else>
-                <el-radio
-                  v-for="dict in dict.type.sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span ="8">
-            <el-form-item v-if="form.iqcCheck == 'Y'" label="来料检验单" prop="iqcCode">
-              <el-input v-model="form.iqcCode" readonly="readonly" placeholder="请选择来料检验单" >
-                <el-button slot="append" @click="handleSelectIqc" icon="el-icon-search"></el-button>
-              </el-input>
-              <IqcSelect ref="iqcSelect" @onSelected="onIqcSelected"></IqcSelect>
-            </el-form-item>
+          <el-col :span="8">
           </el-col>
         </el-row>
         <el-row>
@@ -178,14 +145,16 @@
 <script>
 import { listItemrecptline, getItemrecptline, delItemrecptline, addItemrecptline, updateItemrecptline } from "@/api/mes/wm/itemrecptline";
 import ItemSelect  from "@/components/itemSelect/single.vue";
+import NoticeLineSelect from "@/components/noticeSelect/lineSingle.vue"
 import IqcSelect from "@/components/iqcSelect/single.vue";
 import {getTreeList} from "@/api/mes/wm/warehouse"
 export default {
   name: "Itemrecptline",
   dicts: ['sys_yes_no'],
-  components :{ItemSelect,IqcSelect},
+  components :{ItemSelect,IqcSelect,NoticeLineSelect},
   props:{
     recptId: null,
+    noticeId: null,
     optType: null,
     warehouseId: null,
     locationId: null,
@@ -313,6 +282,7 @@ export default {
       this.form = {
         lineId: null,
         recptId: this.recptId,
+        noticeLineId: null,
         itemId: null,
         itemCode: null,
         itemName: null,
@@ -391,13 +361,27 @@ export default {
     },
     //物料选择弹出框
     onItemSelected(obj){
-        debugger;
         if(obj != undefined && obj != null){
           this.form.itemId = obj.itemId;
           this.form.itemCode = obj.itemCode;
           this.form.itemName = obj.itemName;
           this.form.specification = obj.specification;
           this.form.unitOfMeasure = obj.unitOfMeasure;  
+        }
+    },
+    //选择到货通知单行
+    handleSelectNoticeLine(){
+      this.$refs.noticeLineSelect.showFlag = true;
+    },
+    onNoticeLineSelectd(obj){
+      if(obj != undefined && obj != null){
+          this.form.noticeLineId = obj.lineId;
+          this.form.itemId = obj.itemId;
+          this.form.itemCode = obj.itemCode;
+          this.form.itemName = obj.itemName;
+          this.form.specification = obj.specification;
+          this.form.unitOfMeasure = obj.unitOfMeasure;  
+          this.form.quantityRecived = obj.quantityQuanlified;
         }
     },
     //IQC检验单选择

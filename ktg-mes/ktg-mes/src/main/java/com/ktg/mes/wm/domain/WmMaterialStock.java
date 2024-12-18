@@ -50,11 +50,9 @@ public class WmMaterialStock extends BaseEntity
     private String batchCode;
 
     /** 仓库ID */
-    @Excel(name = "仓库ID")
     private Long warehouseId;
 
     /** 仓库编码 */
-    @Excel(name = "仓库编码")
     private String warehouseCode;
 
     /** 仓库名称 */
@@ -62,11 +60,9 @@ public class WmMaterialStock extends BaseEntity
     private String warehouseName;
 
     /** 库区ID */
-    @Excel(name = "库区ID")
     private Long locationId;
 
     /** 库区编码 */
-    @Excel(name = "库区编码")
     private String locationCode;
 
     /** 库区名称 */
@@ -74,11 +70,9 @@ public class WmMaterialStock extends BaseEntity
     private String locationName;
 
     /** 库位ID */
-    @Excel(name = "库位ID")
     private Long areaId;
 
     /** 库位编码 */
-    @Excel(name = "库位编码")
     private String areaCode;
 
     /** 库位名称 */
@@ -86,7 +80,6 @@ public class WmMaterialStock extends BaseEntity
     private String areaName;
 
     /** 供应商ID */
-    @Excel(name = "供应商ID")
     private Long vendorId;
 
     /** 供应商编号 */
@@ -114,6 +107,12 @@ public class WmMaterialStock extends BaseEntity
     @Excel(name = "生产工单编号")
     private String workorderCode;
 
+    /** 生产日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "生产日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date productionDate;
+
+
     /** 库存有效期 */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     @Excel(name = "入库时间", width = 30, dateFormat = "yyyy-MM-dd hh:mm:ss")
@@ -124,20 +123,22 @@ public class WmMaterialStock extends BaseEntity
     @Excel(name = "库存有效期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date expireDate;
 
+    /**
+     * 是否冻结
+     */
+    @Excel(name = "是否冻结")
+    private String frozenFlag;
+
     /** 预留字段1 */
-    @Excel(name = "预留字段1")
     private String attr1;
 
     /** 预留字段2 */
-    @Excel(name = "预留字段2")
     private String attr2;
 
     /** 预留字段3 */
-    @Excel(name = "预留字段3")
     private Long attr3;
 
     /** 预留字段4 */
-    @Excel(name = "预留字段4")
     private Long attr4;
 
     public void setMaterialStockId(Long materialStockId) 
@@ -372,7 +373,24 @@ public class WmMaterialStock extends BaseEntity
     {
         return expireDate;
     }
-    public void setAttr1(String attr1) 
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public String getFrozenFlag() {
+        return frozenFlag;
+    }
+
+    public void setFrozenFlag(String frozenFlag) {
+        this.frozenFlag = frozenFlag;
+    }
+
+    public void setAttr1(String attr1)
     {
         this.attr1 = attr1;
     }

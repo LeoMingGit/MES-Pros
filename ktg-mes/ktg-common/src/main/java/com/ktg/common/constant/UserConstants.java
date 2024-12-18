@@ -1,10 +1,9 @@
 package com.ktg.common.constant;
 
-//import org.omg.CORBA.PUBLIC_MEMBER;
 
 /**
  * 用户常量信息
- * 
+ *
  * @author ruoyi
  */
 public class UserConstants
@@ -57,7 +56,7 @@ public class UserConstants
 
     /** Layout组件标识 */
     public final static String LAYOUT = "Layout";
-    
+
     /** ParentView组件标识 */
     public final static String PARENT_VIEW = "ParentView";
 
@@ -85,6 +84,8 @@ public class UserConstants
     /**
      * 各种业务单据的内定自动编码规则标识
      */
+    public static final String VENDOR_CODE = "VENDOR_CODE";
+    public static final String CLIENT_CODE = "CLIENT_CODE";
     public static final String ITEM_TYPE_CODE ="ITEM_TYPE_CODE";
     public static final String ITEM_CODE ="ITEM_CODE";
     public static final String MACHINERY_TYPE_CODE="MACHINERY_TYPE_CODE";
@@ -102,6 +103,11 @@ public class UserConstants
     public static final String TRANSFER_CODE ="TRANSFER_CODE"; //移库
     public static final String STOCKTAKING_CODE ="STOCKTAKING_CODE"; //盘库单
     public static final String FEEDBACK_CODE ="FEEDBACK_CODE"; //报工单
+    public static final String CARD_CODE = "CARD_CODE";//流转卡
+    public static final String QC_IQC_CODE ="QC_IQC_CODE"; //来料检验单
+    public static final String QC_IPQC_CODE ="QC_IPQC_CODE"; //过程检验单
+    public static final String QC_OQC_CODE ="QC_OQC_CODE"; //出货检验单
+    public static final String QC_RESULT_CODE ="QC_RESULT_CODE"; //检验结果编号(样品编号)
 
     /**
      * 单据的状态类型
@@ -198,6 +204,13 @@ public class UserConstants
     public static final String QC_TYPE_IPQC = "IPQC"; //过程检验单
     public static final String QC_TYPE_OQC = "OQC"; //出货检验
 
+
+    public static final String  QC_RESULT_TYPE_FLOAT = "FLOAT"; //浮动
+    public static final String  QC_RESULT_TYPE_TEXT = "TEXT"; //文本
+    public static final String  QC_RESULT_TYPE_INTEGER = "INTEGER"; //整数
+    public static final String  QC_RESULT_TYPE_DICT = "DICT"; //字典
+    public static final String  QC_RESULT_TYPE_FILE = "FILE"; //文件
+
     /**
      * 默认线边库对应的仓库、库区、库位编码
      */
@@ -227,7 +240,13 @@ public class UserConstants
     public static final String BARCODE_TYPE_TRANSORDER = "TRANSORDER"; //流转单
     public static final String BARCODE_TYPE_CLIENT = "CLIENT"; //客户
     public static final String BARCODE_TYPE_VENDOR = "VENDOR"; //供应商
+    public static final String BARCODE_TYPE_WORKSHOP = "WORKSHOP";
+    public static final String BARCODE_TYPE_WORKORDER = "WORKORDER";
+    public static final String BARCODE_TYPE_TOOL = "TOOL";
     public static final String BARCODE_TYPE_SN = "SN";
+    public static final String BARCODE_TYPE_PROCARD ="PROCARD";
+    public static final String TEST_TYPE_PRINTER = "TEST";
+
 
     /**
      * 消息状态

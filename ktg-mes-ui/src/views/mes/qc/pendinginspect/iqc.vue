@@ -27,7 +27,6 @@
               <el-image fit="contain" v-else :src="prepareImg" />
           </el-col>
         </el-row>
-        <el-divider content-position="center">物料与供应商</el-divider>
         <el-row>
           <el-col :span="8">
             <el-form-item label="产品物料编码" prop="itemCode">
@@ -79,8 +78,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="本次检测数量" prop="quantityCheck">
-              <el-input :min="1" v-model="form.quantityCheck" placeholder="请输入本次检测数量" />
+            <el-form-item label="合格品数量" prop="quantityQualified">
+              <el-input-number :min="0" v-model="form.quantityQualified" placeholder="请输入合格品数量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -131,7 +130,7 @@
           </el-col>
         </el-row>
         <el-collapse accordion>
-          <el-collapse-item title="结果统计">
+          <el-collapse-item title="缺陷情况">
             <el-row>
               <el-col :span="8">
                 <el-form-item label="致命缺陷率" prop="crRate">
@@ -200,23 +199,20 @@ export default {
             form: {},
             // 表单校验
             rules: {
-                ipqcCode: [
-                { required: true, message: "请输入或生产检验单编号", trigger: "blur" }
+                iqcCode: [
+                { required: true, message: "请输入检验单编号", trigger: "blur" }
                 ],
-                ipqcType: [
-                { required: true, message: "请选择检验类型", trigger: "change" }
+
+                iqcName: [
+                { required: true, message: "请输入检验单名称", trigger: "blur" }
                 ],
 
                 workorderCode: [
                 { required: true, message: "请选择生产工单", trigger: "blur" }
                 ],
 
-                workstationCode: [
-                { required: true, message: "请选择工作站", trigger: "blur" }
-                ],
-            
-                quantityCheck: [
-                { required: true, message: "检测数量不能为空", trigger: "blur" }
+                checkResult: [
+                { required: true, message: "请选择检测结果", trigger: "blur" }
                 ],
 
                 quantityUnqualified: [
@@ -244,7 +240,7 @@ export default {
         this.form = {
           iqcId: null,
           iqcCode: null,
-          iqcName: null,
+          iqcName: '到货通知单【'+this.$route.params.sourceDocCode+'】检验单',
           templateId: null,
           sourceDocId: this.$route.params.sourceDocId,
           sourceDocType: this.$route.params.sourceDocType,
@@ -264,6 +260,7 @@ export default {
           quantityMaxUnqualified: null,
           quantityRecived: this.$route.params.quantityUncheck,
           quantityCheck: null,
+          quantityQualified: null,
           quantityUnqualified: null,
           crRate: null,
           majRate: null,
@@ -273,7 +270,7 @@ export default {
           minQuantity: null,
           checkResult: null,
           reciveDate: this.$route.params.recordTime,
-          inspectDate: null,
+          inspectDate: new Date(),
           inspector: null,
           status: "PREPARE",
           remark: null,

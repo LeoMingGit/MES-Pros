@@ -27,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="quantityMaxUnqualified"    column="quantity_max_unqualified"    />
         <result property="quantityRecived"    column="quantity_recived"    />
         <result property="quantityCheck"    column="quantity_check"    />
+        <result property="quantityQualified"    column="quantity_qualified"    />
         <result property="quantityUnqualified"    column="quantity_unqualified"    />
         <result property="crRate"    column="cr_rate"    />
         <result property="majRate"    column="maj_rate"    />
@@ -52,7 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectQcIqcVo">
-        select iqc_id, iqc_code, iqc_name, template_id, source_doc_id,source_doc_type, source_doc_code, source_line_id, vendor_id, vendor_code, vendor_name, vendor_nick, vendor_batch, item_id, item_code, item_name, specification, unit_of_measure, quantity_min_check, quantity_max_unqualified, quantity_recived, quantity_check, quantity_unqualified, cr_rate, maj_rate, min_rate, cr_quantity, maj_quantity, min_quantity, check_result, recive_date, inspect_date, inspector,u.nick_name as inspector_name, q.status, q.remark, attr1, attr2, attr3, attr4, q.create_by, q.create_time, q.update_by, q.update_time from qc_iqc q left join sys_user u on u.user_name = q.inspector
+        select iqc_id, iqc_code, iqc_name, template_id, source_doc_id,source_doc_type, source_doc_code, source_line_id, vendor_id, vendor_code, vendor_name, vendor_nick, vendor_batch, item_id, item_code, item_name, specification, unit_of_measure, quantity_min_check, quantity_max_unqualified, quantity_recived, quantity_check, quantity_qualified,quantity_unqualified, cr_rate, maj_rate, min_rate, cr_quantity, maj_quantity, min_quantity, check_result, recive_date, inspect_date, inspector,u.nick_name as inspector_name, q.status, q.remark, attr1, attr2, attr3, attr4, q.create_by, q.create_time, q.update_by, q.update_time from qc_iqc q left join sys_user u on u.user_name = q.inspector
     </sql>
 
     <select id="selectQcIqcList" parameterType="QcIqc" resultMap="QcIqcResult">
@@ -79,6 +80,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="quantityMaxUnqualified != null "> and quantity_max_unqualified = #{quantityMaxUnqualified}</if>
             <if test="quantityRecived != null "> and quantity_recived = #{quantityRecived}</if>
             <if test="quantityCheck != null "> and quantity_check = #{quantityCheck}</if>
+            <if test="quantityQualified != null "> and quantity_qualified = #{quantityQualified}</if>
             <if test="quantityUnqualified != null "> and quantity_unqualified = #{quantityUnqualified}</if>
             <if test="crRate != null "> and cr_rate = #{crRate}</if>
             <if test="majRate != null "> and maj_rate = #{majRate}</if>
@@ -91,6 +93,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inspectDate != null "> and inspect_date = #{inspectDate}</if>
             <if test="inspector != null  and inspector != ''"> and inspector = #{inspector}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
         </where>
         order by create_time desc
     </select>
@@ -129,6 +132,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="quantityMaxUnqualified != null">quantity_max_unqualified,</if>
             <if test="quantityRecived != null">quantity_recived,</if>
             <if test="quantityCheck != null">quantity_check,</if>
+            <if test="quantityQualified != null">quantity_qualified,</if>
             <if test="quantityUnqualified != null">quantity_unqualified,</if>
             <if test="crRate != null">cr_rate,</if>
             <if test="majRate != null">maj_rate,</if>
@@ -173,6 +177,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="quantityMaxUnqualified != null">#{quantityMaxUnqualified},</if>
             <if test="quantityRecived != null">#{quantityRecived},</if>
             <if test="quantityCheck != null">#{quantityCheck},</if>
+            <if test="quantityQualified != null">#{quantityQualified},</if>
             <if test="quantityUnqualified != null">#{quantityUnqualified},</if>
             <if test="crRate != null">#{crRate},</if>
             <if test="majRate != null">#{majRate},</if>
@@ -242,6 +247,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="quantityMaxUnqualified != null">quantity_max_unqualified = #{quantityMaxUnqualified},</if>
             <if test="quantityRecived != null">quantity_recived = #{quantityRecived},</if>
             <if test="quantityCheck != null">quantity_check = #{quantityCheck},</if>
+            <if test="quantityQualified != null">quantity_qualified = #{quantityQualified},</if>
             <if test="quantityUnqualified != null">quantity_unqualified = #{quantityUnqualified},</if>
             <if test="crRate != null">cr_rate = #{crRate},</if>
             <if test="majRate != null">maj_rate = #{majRate},</if>

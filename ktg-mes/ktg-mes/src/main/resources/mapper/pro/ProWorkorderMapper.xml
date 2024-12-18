@@ -85,6 +85,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where workorder_id = #{workorderId}
     </select>
 
+    <select id="selectProWorkorderListByParentId" parameterType="Long" resultMap="ProWorkorderResult">
+        <include refid="selectProWorkorderVo"/>
+        where parent_id = #{parentId}
+    </select>
+
     <select id="checkWorkorderCodeUnique" parameterType="ProWorkorder" resultMap="ProWorkorderResult">
         <include refid="selectProWorkorderVo"/>
         where workorder_code = #{workorderCode} limit 1

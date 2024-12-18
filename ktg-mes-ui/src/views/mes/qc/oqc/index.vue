@@ -41,8 +41,8 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="检测结果" prop="checkResult">
-        <el-select v-model="queryParams.checkResult" placeholder="请选择检测结果">
+      <el-form-item label="检测结论" prop="checkResult">
+        <el-select v-model="queryParams.checkResult" placeholder="请选择检测结论">
             <el-option
               v-for="dict in dict.type.mes_qc_result"
               :key="dict.value"
@@ -128,7 +128,7 @@
       <el-table-column label="检测数量" align="center" prop="quantityCheck" />
       <el-table-column label="不合格数" align="center" prop="quantityUnqualified" />
   
-      <el-table-column label="检测结果" align="center" prop="checkResult" >
+      <el-table-column label="检测结论" align="center" prop="checkResult" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.mes_qc_result" :value="scope.row.checkResult"/>
         </template>
@@ -301,8 +301,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="检测结果" prop="checkResult">
-              <el-select v-model="form.checkResult" placeholder="请选择检测结果">
+            <el-form-item label="检测结论" prop="checkResult">
+              <el-select v-model="form.checkResult" placeholder="请选择检测结论">
                 <el-option
                   v-for="dict in dict.type.mes_qc_result"
                   :key="dict.value"
@@ -359,10 +359,16 @@
           </el-collapse-item>
         </el-collapse>        
       </el-form>
-      <el-divider v-if="form.oqcId !=null" content-position="center">检测项</el-divider> 
-      <el-card shadow="always" v-if="form.oqcId !=null" class="box-card">
-          <Oqcline ref=line :oqcId="form.oqcId" :optType="optType"></Oqcline>
-      </el-card>
+
+      <el-tabs type="border-card" v-if="form.oqcId != null">
+          <el-tab-pane label="检测项">
+            <Oqcline ref=line :oqcId="form.oqcId" :optType="optType"></Oqcline>
+          </el-tab-pane>
+          <el-tab-pane label="检测结果">
+            <QCResutl ref="qcResult" :qcId="form.oqcId" :qcType="'OQC'" :optType="optType"></QCResutl>
+          </el-tab-pane>
+      </el-tabs>
+
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancel" v-if="optType =='view' || form.status !='PREPARE' ">返回</el-button>
         <el-button type="primary" @click="submitForm" v-if="form.status =='PREPARE' && optType !='view' ">保 存</el-button>
@@ -379,11 +385,12 @@ import ItemSelect  from "@/components/itemSelect/single.vue";
 import ClientSelect from "@/components/clientSelect/single.vue";
 import {genCode} from "@/api/system/autocode/rule";
 import Oqcline from "./line.vue";
+import QCResutl from "../qcresult/index.vue";
 export default {
   name: "Oqc",
   dicts: ['mes_order_status','mes_qc_result'],
   components: {
-    ItemSelect,Oqcline,ClientSelect
+    ItemSelect,Oqcline,ClientSelect,QCResutl
   },
   data() {
     return {
@@ -660,7 +667,7 @@ export default {
     //自动生成编码
     handleAutoGenChange(autoGenFlag){
       if(autoGenFlag){
-        genCode('OQC_CODE').then(response =>{
+        genCode('QC_OQC_CODE').then(response =>{
           this.form.oqcCode = response;
         });
       }else{

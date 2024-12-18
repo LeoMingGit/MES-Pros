@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t.template_id, template_code, template_name, qc_types, enable_flag, t.remark
         from qc_template t
         left join qc_template_product tl on t.template_id = tl.template_id
-        where t.qc_types like concat('%',#{qcTypes},'%') and tl.item_id = #{itemId}
+        where t.qc_types like concat('%',#{qcTypes},'%') and tl.item_id = #{itemId} and t.enable_flag = 'Y'
         limit 1;
     </select>
 
@@ -60,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                             on t.template_id = p.template_id
         where p.item_id = #{itemId}
           and t.qc_types like concat('%',#{qcType},'%')
+          and t.enable_flag = 'Y'
         limit 1
     </select>
 
